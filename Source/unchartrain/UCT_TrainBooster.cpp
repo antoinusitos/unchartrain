@@ -3,6 +3,11 @@
 #include "UCT_TrainBooster.h"
 #include "Net/UnrealNetwork.h"
 
+AUCT_TrainBooster::AUCT_TrainBooster()
+{
+    bReplicates = true;
+}
+
 void AUCT_TrainBooster::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
     // Call the Super
@@ -10,7 +15,6 @@ void AUCT_TrainBooster::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& 
 
     DOREPLIFETIME(AUCT_TrainBooster, NumberPeopleBoosting);
 }
-
 
 void AUCT_TrainBooster::OnRep_NumberPeopleBoostingUpdate()
 {

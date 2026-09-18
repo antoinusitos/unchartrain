@@ -38,6 +38,11 @@ void AUCT_Train::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	if (TrainDirectionToSpawn != nullptr)
 	{
 		TrainDirection = GetWorld()->SpawnActor<AUCT_TrainDirection>(TrainDirectionToSpawn);

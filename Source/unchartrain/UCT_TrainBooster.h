@@ -17,6 +17,8 @@ class UNCHARTRAIN_API AUCT_TrainBooster : public AUCT_Interactable
 	GENERATED_BODY()
 	
 public:
+	AUCT_TrainBooster();
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:

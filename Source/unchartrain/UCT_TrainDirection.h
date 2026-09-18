@@ -6,6 +6,7 @@
 #include "UCT_Interactable.h"
 #include "UCT_TrainDirection.generated.h"
 
+class UArrowComponent;
 class USpringArmComponent;
 class UStaticMeshComponent;
 
@@ -36,6 +37,9 @@ public:
 	UStaticMeshComponent* Base = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* PlayerPlacement = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TWeakObjectPtr<AUCT_Train> Train = nullptr;
 
 	float RotValue = 90.0f;
@@ -43,7 +47,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_RotUpdate, Category = "UCT")
 	float Rot = 0.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
+	bool IsUsed = false;
+
 public:
 	UFUNCTION()
 	void OnRep_RotUpdate();
+
+	UFUNCTION()
+	void OnRep_IsUsedUpdate();
 };

@@ -6,6 +6,13 @@
 #include "UCT_Interactable.h"
 #include "UCT_Canon.generated.h"
 
+class UArrowComponent;
+class UCameraComponent;
+class USpringArmComponent;
+class UStaticMeshComponent;
+
+class AUCT_CanonBall;
+
 /**
  * 
  */
@@ -14,4 +21,69 @@ class UNCHARTRAIN_API AUCT_Canon : public AUCT_Interactable
 {
 	GENERATED_BODY()
 	
+public:
+	AUCT_Canon();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void Tick(float DeltaTime) override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UStaticMeshComponent* Base = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	USpringArmComponent* SpringArm = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UStaticMeshComponent* Cylinder = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* PlayerPlacement = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* FirePlace = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UCameraComponent* CameraPlace = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
+	bool IsUsed = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_RotXUpdate, Category = "UCT")
+	float RotX = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_RotYUpdate, Category = "UCT")
+	float RotY = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MinX = -45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MaxX = 45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MinY = -45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MaxY = 45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	TSubclassOf<AUCT_CanonBall> CanonBallToSpawn = nullptr;
+
+public:
+	UFUNCTION()
+	void OnRep_IsUsedUpdate();
+
+	UFUNCTION()
+	void OnRep_RotXUpdate();
+
+	UFUNCTION()
+	void OnRep_RotYUpdate();
+
+	UFUNCTION(BlueprintCallable)
+	void FireCanon();
+
+	UFUNCTION(BlueprintCallable)
+	void AddRotation(float X, float Y);
 };
