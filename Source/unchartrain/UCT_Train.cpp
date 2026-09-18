@@ -4,6 +4,7 @@
 
 #include "UCT_TrainDirection.h"
 #include "UCT_TrainBooster.h"
+#include "UCT_TrainStopper.h"
 
 #include "Components/ArrowComponent.h"
 #include "Components/SceneComponent.h"
@@ -23,6 +24,9 @@ AUCT_Train::AUCT_Train()
 
 	TrainBooster_Socket = CreateDefaultSubobject<UArrowComponent>("TrainBooster_Socket");
 	TrainBooster_Socket->SetupAttachment(RootComponent);
+
+	TrainStopper_Socket = CreateDefaultSubobject<UArrowComponent>("TrainStopper_Socket");
+	TrainStopper_Socket->SetupAttachment(RootComponent);
 }
 
 void AUCT_Train::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -31,6 +35,7 @@ void AUCT_Train::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AUCT_Train, BoostValue);
+	DOREPLIFETIME(AUCT_Train, ReleasingStopping);
 }
 
 // Called when the game starts or when spawned
@@ -58,6 +63,14 @@ void AUCT_Train::BeginPlay()
 
 		TrainBooster->Train = this;
 	}
+
+	if (TrainStopperToSpawn != nullptr)
+	{
+		TrainStopper = GetWorld()->SpawnActor<AUCT_TrainStopper>(TrainStopperToSpawn);
+		TrainStopper->AttachToComponent(TrainStopper_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		TrainStopper->Train = this;
+	}
 }
 
 // Called every frame
@@ -70,16 +83,12 @@ void AUCT_Train::Tick(float DeltaTime)
 		return;
 	}
 
-	if (Moving)
+	if (Stopping < 1)
 	{
 		Speed = FMath::Clamp(Speed + Acceleration * DeltaTime * BoostValue, 0.0f, MaxSpeed * BoostValue);
 	}
-	else
-	{
-		Speed = FMath::Clamp(Speed - Break * DeltaTime, 0.0f, MaxSpeed);
-	}
-
-	SetActorLocation(GetActorLocation() + GetActorForwardVector() * Speed * DeltaTime);
+	
+	SetActorLocation(GetActorLocation() + GetActorForwardVector() * Speed * DeltaTime * (1.0f - Stopping));
 
 	TrainDirection->Rot = Rotation;
 
@@ -92,8 +101,16 @@ void AUCT_Train::Tick(float DeltaTime)
 		HandleBoost();
 	}
 
+	if (TrainStopper->NumberPeopleUsing > 0 && Stopping < 1)
+	{
+		StopTrain();
+	}
+	else if (ReleasingStopping)
+	{
+		StartTrain();
+	}
 
-	if (Speed > 0)
+	if (Speed > 0 && Stopping < 1)
 	{
 		AddActorWorldRotation(FRotator(0, Rotation, 0));
 	}
@@ -102,6 +119,21 @@ void AUCT_Train::Tick(float DeltaTime)
 void AUCT_Train::ToggleTrainMovement()
 {
 	Moving = !Moving;
+}
+
+void AUCT_Train::StopTrain()
+{
+	ReleasingStopping = false;
+	Stopping = FMath::Clamp(Stopping + TrainStopper->NumberPeopleUsing * GetWorld()->GetDeltaSeconds(), 0.0f, 1.0f);
+}
+
+void AUCT_Train::StartTrain()
+{
+	Stopping = FMath::Clamp(Stopping - GetWorld()->GetDeltaSeconds(), 0.0f, 1.0f);
+	if (Stopping <= 0)
+	{
+		ReleasingStopping = false;
+	}
 }
 
 void AUCT_Train::BoostTrain()
@@ -137,4 +169,9 @@ void AUCT_Train::TurnRight()
 void AUCT_Train::OnRep_BoostValueUpdate()
 {
 	OnBoostValueChange();
+}
+
+void AUCT_Train::OnRep_ReleasingStoppingUpdate()
+{
+
 }

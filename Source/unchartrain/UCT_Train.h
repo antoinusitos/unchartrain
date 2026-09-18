@@ -8,6 +8,7 @@
 
 class AUCT_TrainDirection;
 class AUCT_TrainBooster;
+class AUCT_TrainStopper;
 
 class UArrowComponent;
 class USceneComponent;
@@ -39,6 +40,9 @@ public:
 	AUCT_TrainBooster* TrainBooster = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	AUCT_TrainStopper* TrainStopper = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TWeakObjectPtr<USceneComponent> BaseSceneComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -53,10 +57,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* TrainBooster_Socket = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	TSubclassOf<AUCT_TrainStopper> TrainStopperToSpawn = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* TrainStopper_Socket = nullptr;
+
 	float Speed = 0.0f;
 	float MaxSpeed = 400.0f;
 	float Acceleration = 100.0f;
-	float Break = 100.0f;
 	float TurnSpeed = 0.3f;
 	float MaxRotation = 0.2f;
 
@@ -69,9 +78,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_BoostValueUpdate, Category = "UCT")
 	float BoostValue = 1.0f;
 	float Rotation = 0.0f;
+	float Stopping = 1.0f;
 
 	bool Moving = false;
 	bool Boosted = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_ReleasingStoppingUpdate, Category = "UCT")
+	bool ReleasingStopping = false;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -92,6 +104,15 @@ public:
 	UFUNCTION()
 	void OnRep_BoostValueUpdate();
 
+	UFUNCTION()
+	void OnRep_ReleasingStoppingUpdate();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBoostValueChange();
+
+	UFUNCTION(BlueprintCallable)
+	void StopTrain();
+
+	UFUNCTION(BlueprintCallable)
+	void StartTrain();
 };
