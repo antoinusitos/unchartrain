@@ -6,8 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "UCT_Train.generated.h"
 
-class AUCT_TrainDirection;
+class AUCT_TrainAccelerator;
 class AUCT_TrainBooster;
+class AUCT_TrainDirection;
 class AUCT_TrainStopper;
 
 class UArrowComponent;
@@ -43,6 +44,9 @@ public:
 	AUCT_TrainStopper* TrainStopper = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	AUCT_TrainAccelerator* TrainAccelerator = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TWeakObjectPtr<USceneComponent> BaseSceneComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -63,6 +67,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* TrainStopper_Socket = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	TSubclassOf<AUCT_TrainAccelerator> TrainAcceleratorToSpawn = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* TrainAccelerator_Socket = nullptr;
+
 	float Speed = 0.0f;
 	float MaxSpeed = 400.0f;
 	float Acceleration = 100.0f;
@@ -78,7 +88,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_BoostValueUpdate, Category = "UCT")
 	float BoostValue = 1.0f;
 	float Rotation = 0.0f;
-	float Stopping = 1.0f;
 
 	bool Moving = false;
 	bool Boosted = false;
@@ -109,10 +118,4 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBoostValueChange();
-
-	UFUNCTION(BlueprintCallable)
-	void StopTrain();
-
-	UFUNCTION(BlueprintCallable)
-	void StartTrain();
 };

@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_NumberPeopleBoostingUpdate, Category = "UCT")
 	int32 NumberPeopleBoosting = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
+	int32 NumberPeopleMax = 2;
+
 public:
 	UFUNCTION()
 	void OnRep_NumberPeopleBoostingUpdate();

@@ -64,7 +64,6 @@ void AUCT_TrainStopper::AttachToStopper(ACharacter* character)
     {
         AllCharactersAttached.Add(character);
         NumberPeopleUsing++;
-        IsReleased = false;
     }
 }
 
@@ -74,11 +73,6 @@ void AUCT_TrainStopper::DetachToStopper(ACharacter* character)
     {
         AllCharactersAttached.Remove(character);
         NumberPeopleUsing--;
-
-        if (NumberPeopleUsing == 0 && !TrainCanMove && LockingValue > 0)
-        {
-            IsReleased = true;
-        }
     }
 }
 
