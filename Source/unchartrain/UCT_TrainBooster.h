@@ -21,6 +21,10 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TWeakObjectPtr<AUCT_Train> Train = nullptr;
@@ -31,15 +35,44 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	int32 NumberPeopleMax = 2;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PickedNumberUpdate, Category = "UCT")
+	int32 PickedNumber = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentValueUpdate, Category = "UCT")
+	float CurrentValue = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
+	float ChangeMultiplier = 4;
+
+	float TimeToChangeNumber = 10;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
+	bool IsBoosted = false;
+
 public:
 	UFUNCTION()
 	void OnRep_NumberPeopleBoostingUpdate();
+
+	UFUNCTION()
+	void OnRep_PickedNumberUpdate();
+
+	UFUNCTION()
+	void OnRep_CurrentValueUpdate();
 
 	UFUNCTION(BlueprintCallable)
 	void AttachToBooster(ACharacter* character);
 
 	UFUNCTION(BlueprintCallable)
 	void DetachToBooster(ACharacter* character);
+
+	UFUNCTION(BlueprintCallable)
+	void AddPressure();
+
+	UFUNCTION(BlueprintCallable)
+	void RemovePressure();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeDone();
 
 private:
 	TArray<ACharacter*> AllCharactersAttached;
