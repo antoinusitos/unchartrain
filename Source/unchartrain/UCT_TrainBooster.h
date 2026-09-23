@@ -35,16 +35,28 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	int32 NumberPeopleMax = 2;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MinNumber = 60;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float MaxNumber = 300;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float Tolerence = 15.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_PickedNumberUpdate, Category = "UCT")
 	int32 PickedNumber = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentValueUpdate, Category = "UCT")
 	float CurrentValue = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float ChangeMultiplier = 4;
 
-	float TimeToChangeNumber = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float TimeToChangeNumber = 30;
+
+	float CurrentTimeToChangeNumber = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	bool IsBoosted = false;

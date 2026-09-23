@@ -15,9 +15,13 @@ void AUCT_TrainBooster::BeginPlay()
 
     if (HasAuthority())
     {
-        PickedNumber = FMath::RandRange(0, 100);
-        OnChangeDone();
+        CurrentTimeToChangeNumber = TimeToChangeNumber;
+        PickedNumber = FMath::RandRange(MinNumber, MaxNumber);
     }
+
+    CurrentValue = MinNumber;
+
+    OnChangeDone();
 }
 
 void AUCT_TrainBooster::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -34,16 +38,13 @@ void AUCT_TrainBooster::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    UE_LOG(LogTemp, Warning, TEXT("Tick %f"), TimeToChangeNumber);
-
     if (HasAuthority())
     {
-        TimeToChangeNumber -= DeltaTime;
-        UE_LOG(LogTemp, Warning, TEXT("TimeToChangeNumber %f"), TimeToChangeNumber);
-        if (TimeToChangeNumber <= 0)
+        CurrentTimeToChangeNumber -= DeltaTime;
+        if (CurrentTimeToChangeNumber <= 0)
         {
-            TimeToChangeNumber = 10;
-            PickedNumber = FMath::RandRange(0, 100);
+            CurrentTimeToChangeNumber = TimeToChangeNumber;
+            PickedNumber = FMath::RandRange(MinNumber, MaxNumber);
             OnChangeDone();
         }
     }
@@ -84,11 +85,11 @@ void AUCT_TrainBooster::OnRep_CurrentValueUpdate()
 
 void AUCT_TrainBooster::AddPressure()
 {
-    CurrentValue = FMath::Clamp(CurrentValue + GetWorld()->GetDeltaSeconds() * ChangeMultiplier, 0.0f, 100.0f);
+    CurrentValue = FMath::Clamp(CurrentValue + GetWorld()->GetDeltaSeconds() * ChangeMultiplier, MinNumber, MaxNumber);
+    OnChangeDone();
 
-    if (CurrentValue <= PickedNumber + 5 && CurrentValue >= PickedNumber - 5)
+    if (CurrentValue <= PickedNumber + (Tolerence / 2) && CurrentValue >= PickedNumber - (Tolerence / 2))
     {
-        UE_LOG(LogTemp, Warning, TEXT("BOOST"));
         IsBoosted = true;
     }
     else
@@ -99,11 +100,11 @@ void AUCT_TrainBooster::AddPressure()
 
 void AUCT_TrainBooster::RemovePressure()
 {
-    CurrentValue = FMath::Clamp(CurrentValue - GetWorld()->GetDeltaSeconds() * ChangeMultiplier, 0.0f, 100.0f);
+    CurrentValue = FMath::Clamp(CurrentValue - GetWorld()->GetDeltaSeconds() * ChangeMultiplier, MinNumber, MaxNumber);
+    OnChangeDone();
 
-    if (CurrentValue <= PickedNumber + 5 && CurrentValue >= PickedNumber - 5)
+    if (CurrentValue <= PickedNumber + (Tolerence / 2) && CurrentValue >= PickedNumber - (Tolerence / 2))
     {
-        UE_LOG(LogTemp, Warning, TEXT("BOOST"));
         IsBoosted = true;
     }
     else
