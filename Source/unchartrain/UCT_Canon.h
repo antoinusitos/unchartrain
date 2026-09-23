@@ -68,6 +68,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float MaxY = 45.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float ReloadTime = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float CurrentReloadTime = 0.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_LoadedUpdate, Category = "UCT")
 	bool Loaded = false;
 
@@ -92,4 +98,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddRotation(float X, float Y);
+
+	UFUNCTION(BlueprintCallable)
+	void Reloading();
 };

@@ -59,6 +59,13 @@ void AUCT_Canon::OnRep_IsUsedUpdate()
 
 void AUCT_Canon::FireCanon()
 {
+    if (!Loaded)
+    {
+        return;
+    }
+
+    Loaded = false;
+
     AUCT_CanonBall* CanonBall = GetWorld()->SpawnActor<AUCT_CanonBall>(CanonBallToSpawn, FTransform(FirePlace->GetComponentLocation()));
 
     if (CanonBall)
@@ -86,4 +93,20 @@ void AUCT_Canon::AddRotation(float X, float Y)
 void AUCT_Canon::OnRep_LoadedUpdate()
 {
 
+}
+
+void AUCT_Canon::Reloading()
+{
+    if (Loaded)
+    {
+        return;
+    }
+
+    CurrentReloadTime += GetWorld()->GetDeltaSeconds();
+    UE_LOG(LogTemp, Warning, TEXT("CurrentReloadTime %f"), CurrentReloadTime);
+    if (CurrentReloadTime >= ReloadTime)
+    {
+        CurrentReloadTime = 0;
+        Loaded = true;
+    }
 }

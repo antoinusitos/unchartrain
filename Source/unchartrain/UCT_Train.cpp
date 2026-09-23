@@ -2,11 +2,12 @@
 
 #include "UCT_Train.h"
 
-#include "UCT_TrainDirection.h"
+#include "UCT_TrainAccelerator.h"
 #include "UCT_TrainBooster.h"
 #include "UCT_TrainBoosterBase.h"
+#include "UCT_TrainDirection.h"
+#include "UCT_TrainHole.h"
 #include "UCT_TrainStopper.h"
-#include "UCT_TrainAccelerator.h"
 
 #include "Components/ArrowComponent.h"
 #include "Components/SceneComponent.h"
@@ -35,6 +36,9 @@ AUCT_Train::AUCT_Train()
 
 	TrainStopper_Socket = CreateDefaultSubobject<UArrowComponent>("TrainStopper_Socket");
 	TrainStopper_Socket->SetupAttachment(RootComponent);
+
+	TrainDamage_Socket = CreateDefaultSubobject<UArrowComponent>("TrainDamage_Socket");
+	TrainDamage_Socket->SetupAttachment(RootComponent);
 
 	TrainAccelerator_Socket = CreateDefaultSubobject<UArrowComponent>("TrainAccelerator_Socket");
 	TrainAccelerator_Socket->SetupAttachment(RootComponent);
@@ -194,4 +198,13 @@ void AUCT_Train::OnRep_BoostValueUpdate()
 void AUCT_Train::OnRep_ReleasingStoppingUpdate()
 {
 
+}
+
+void AUCT_Train::TakeDamage()
+{
+	if (TrainStopperToSpawn != nullptr)
+	{
+		AUCT_TrainHole* Damage = GetWorld()->SpawnActor<AUCT_TrainHole>(TrainDamageToSpawn);
+		Damage->AttachToComponent(TrainDamage_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 }
