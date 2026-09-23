@@ -7,6 +7,7 @@
 #include "UCT_TrainBooster.generated.h"
 
 class AUCT_Train;
+class AUCT_TrainBoosterBase;
 
 /**
  * 
@@ -54,14 +55,23 @@ public:
 	float ChangeMultiplier = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	float TimeToChangeNumber = 30;
+	float TimeToChangeNumberMin = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float TimeToChangeNumberMax = 50;
 
 	float CurrentTimeToChangeNumber = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	bool IsBoosted = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_BoosterBasesUpdate, Category = "UCT")
+	TArray<AUCT_TrainBoosterBase*> BoosterBases;
+
 public:
+	UFUNCTION()
+	void OnRep_BoosterBasesUpdate();
+
 	UFUNCTION()
 	void OnRep_NumberPeopleBoostingUpdate();
 
@@ -83,7 +93,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemovePressure();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void OnChangeDone();
 
 private:

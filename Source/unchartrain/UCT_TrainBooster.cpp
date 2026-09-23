@@ -3,6 +3,8 @@
 #include "UCT_TrainBooster.h"
 #include "Net/UnrealNetwork.h"
 
+#include "UCT_TrainBoosterBase.h"
+
 AUCT_TrainBooster::AUCT_TrainBooster()
 {
     bReplicates = true;
@@ -15,7 +17,7 @@ void AUCT_TrainBooster::BeginPlay()
 
     if (HasAuthority())
     {
-        CurrentTimeToChangeNumber = TimeToChangeNumber;
+        CurrentTimeToChangeNumber = FMath::RandRange(TimeToChangeNumberMin, TimeToChangeNumberMax);
         PickedNumber = FMath::RandRange(MinNumber, MaxNumber);
     }
 
@@ -32,6 +34,7 @@ void AUCT_TrainBooster::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& 
     DOREPLIFETIME(AUCT_TrainBooster, NumberPeopleBoosting);
     DOREPLIFETIME(AUCT_TrainBooster, PickedNumber);
     DOREPLIFETIME(AUCT_TrainBooster, CurrentValue);
+    DOREPLIFETIME(AUCT_TrainBooster, BoosterBases);
 }
 
 void AUCT_TrainBooster::Tick(float DeltaTime)
@@ -43,7 +46,7 @@ void AUCT_TrainBooster::Tick(float DeltaTime)
         CurrentTimeToChangeNumber -= DeltaTime;
         if (CurrentTimeToChangeNumber <= 0)
         {
-            CurrentTimeToChangeNumber = TimeToChangeNumber;
+            CurrentTimeToChangeNumber = FMath::RandRange(TimeToChangeNumberMin, TimeToChangeNumberMax);
             PickedNumber = FMath::RandRange(MinNumber, MaxNumber);
             OnChangeDone();
         }
@@ -111,4 +114,20 @@ void AUCT_TrainBooster::RemovePressure()
     {
         IsBoosted = false;
     }
+}
+
+void AUCT_TrainBooster::OnChangeDone()
+{
+    for (int32 i = 0; i < BoosterBases.Num(); i++)
+    {
+        if (BoosterBases[i] != nullptr)
+        {
+            BoosterBases[i]->OnChangeDone(CurrentValue, PickedNumber, Tolerence);
+        }
+    }
+}
+
+void AUCT_TrainBooster::OnRep_BoosterBasesUpdate()
+{
+    OnChangeDone();
 }

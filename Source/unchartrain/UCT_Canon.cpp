@@ -41,6 +41,7 @@ void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLife
     DOREPLIFETIME(AUCT_Canon, IsUsed);
     DOREPLIFETIME(AUCT_Canon, RotX);
     DOREPLIFETIME(AUCT_Canon, RotY);
+    DOREPLIFETIME(AUCT_Canon, Loaded);
 }
 
 void AUCT_Canon::Tick(float DeltaTime)
@@ -80,4 +81,9 @@ void AUCT_Canon::AddRotation(float X, float Y)
 {
     RotX = FMath::Clamp(RotX + X, MinX, MaxX);
     RotY = FMath::Clamp(RotY + Y, MinY, MaxY);
+}
+
+void AUCT_Canon::OnRep_LoadedUpdate()
+{
+
 }

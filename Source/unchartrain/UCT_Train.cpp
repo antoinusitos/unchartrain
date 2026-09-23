@@ -4,6 +4,7 @@
 
 #include "UCT_TrainDirection.h"
 #include "UCT_TrainBooster.h"
+#include "UCT_TrainBoosterBase.h"
 #include "UCT_TrainStopper.h"
 #include "UCT_TrainAccelerator.h"
 
@@ -25,6 +26,12 @@ AUCT_Train::AUCT_Train()
 
 	TrainBooster_Socket = CreateDefaultSubobject<UArrowComponent>("TrainBooster_Socket");
 	TrainBooster_Socket->SetupAttachment(RootComponent);
+
+	TrainBoosterBase1_Socket = CreateDefaultSubobject<UArrowComponent>("TrainBoosterBase1_Socket");
+	TrainBoosterBase1_Socket->SetupAttachment(RootComponent);
+
+	TrainBoosterBase2_Socket = CreateDefaultSubobject<UArrowComponent>("TrainBoosterBase2_Socket");
+	TrainBoosterBase2_Socket->SetupAttachment(RootComponent);
 
 	TrainStopper_Socket = CreateDefaultSubobject<UArrowComponent>("TrainStopper_Socket");
 	TrainStopper_Socket->SetupAttachment(RootComponent);
@@ -66,6 +73,25 @@ void AUCT_Train::BeginPlay()
 		TrainBooster->AttachToComponent(TrainBooster_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
 		TrainBooster->Train = this;
+	}
+
+	if (TrainBoosterBaseToSpawn != nullptr)
+	{
+		TrainBoosterBase1 = GetWorld()->SpawnActor<AUCT_TrainBoosterBase>(TrainBoosterBaseToSpawn);
+		TrainBoosterBase1->AttachToComponent(TrainBoosterBase1_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		TrainBoosterBase1->TrainBooster = TrainBooster;
+
+		TrainBoosterBase2 = GetWorld()->SpawnActor<AUCT_TrainBoosterBase>(TrainBoosterBaseToSpawn);
+		TrainBoosterBase2->AttachToComponent(TrainBoosterBase2_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		TrainBoosterBase2->TrainBooster = TrainBooster;
+
+		TrainBooster->BoosterBases.Add(TrainBoosterBase1);
+		TrainBooster->BoosterBases.Add(TrainBoosterBase2);
+
+		TrainBoosterBase1->PostSpawn();
+		TrainBoosterBase2->PostSpawn();
 	}
 
 	if (TrainStopperToSpawn != nullptr)

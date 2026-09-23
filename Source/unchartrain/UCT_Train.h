@@ -8,6 +8,7 @@
 
 class AUCT_TrainAccelerator;
 class AUCT_TrainBooster;
+class AUCT_TrainBoosterBase;
 class AUCT_TrainDirection;
 class AUCT_TrainStopper;
 
@@ -41,6 +42,12 @@ public:
 	AUCT_TrainBooster* TrainBooster = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	AUCT_TrainBoosterBase* TrainBoosterBase1 = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	AUCT_TrainBoosterBase* TrainBoosterBase2 = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	AUCT_TrainStopper* TrainStopper = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -59,7 +66,16 @@ public:
 	TSubclassOf<AUCT_TrainBooster> TrainBoosterToSpawn = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	TSubclassOf<AUCT_TrainBoosterBase> TrainBoosterBaseToSpawn = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* TrainBooster_Socket = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* TrainBoosterBase1_Socket = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UArrowComponent* TrainBoosterBase2_Socket = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TSubclassOf<AUCT_TrainStopper> TrainStopperToSpawn = nullptr;

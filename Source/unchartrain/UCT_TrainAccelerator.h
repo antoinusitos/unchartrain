@@ -29,11 +29,6 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	USpringArmComponent* SpringArm = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Lever = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UStaticMeshComponent* Base = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -74,4 +69,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DetachToAccelerator(ACharacter* character);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeDone();
 }; 

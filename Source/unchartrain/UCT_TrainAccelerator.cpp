@@ -14,12 +14,6 @@ AUCT_TrainAccelerator::AUCT_TrainAccelerator()
     Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
     RootComponent = Base;
 
-    SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-    SpringArm->SetupAttachment(Base);
-
-    Lever = CreateDefaultSubobject<UStaticMeshComponent>("Lever");
-    Lever->SetupAttachment(SpringArm);
-
     PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
     PlayerPlacement->SetupAttachment(Base);
 }
@@ -40,13 +34,13 @@ void AUCT_TrainAccelerator::Tick(float DeltaTime)
 	if (HasAuthority())
 	{
 		CurrentProgression = FMath::Clamp(CurrentProgression + (Direction1 + Direction2) * DeltaTime * FillingSpeed, 0.0f, 100.0f);
-        SpringArm->SetRelativeScale3D(FVector(CurrentProgression / 100, 1, 1));
+        OnChangeDone();
 	}
 }
 
 void AUCT_TrainAccelerator::OnRep_CurrentProgressionUpdate()
 {
-    SpringArm->SetRelativeScale3D(FVector(CurrentProgression / 100, 1, 1));
+    OnChangeDone();
 }
 
 void AUCT_TrainAccelerator::OnRep_NumberPeopleUsingUpdate()

@@ -68,10 +68,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float MaxY = 45.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_LoadedUpdate, Category = "UCT")
+	bool Loaded = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TSubclassOf<AUCT_CanonBall> CanonBallToSpawn = nullptr;
 
 public:
+	UFUNCTION()
+	void OnRep_LoadedUpdate();
+
 	UFUNCTION()
 	void OnRep_IsUsedUpdate();
 
