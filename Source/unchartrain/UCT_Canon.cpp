@@ -42,6 +42,7 @@ void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLife
     DOREPLIFETIME(AUCT_Canon, RotX);
     DOREPLIFETIME(AUCT_Canon, RotY);
     DOREPLIFETIME(AUCT_Canon, Loaded);
+    DOREPLIFETIME(AUCT_Canon, CurrentReloadTime);
 }
 
 void AUCT_Canon::Tick(float DeltaTime)
@@ -103,10 +104,14 @@ void AUCT_Canon::Reloading()
     }
 
     CurrentReloadTime += GetWorld()->GetDeltaSeconds();
-    UE_LOG(LogTemp, Warning, TEXT("CurrentReloadTime %f"), CurrentReloadTime);
     if (CurrentReloadTime >= ReloadTime)
     {
         CurrentReloadTime = 0;
         Loaded = true;
     }
+}
+
+void AUCT_Canon::OnRep_CurrentReloadTimeUpdate()
+{
+
 }

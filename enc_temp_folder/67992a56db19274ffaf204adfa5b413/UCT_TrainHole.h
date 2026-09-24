@@ -29,7 +29,7 @@ public:
 	float DamageRepaired = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	float DamageToReach = 2;
+	float DamageToReach = 10;
 
 public:
 	UFUNCTION()

@@ -71,7 +71,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float ReloadTime = 5.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentReloadTimeUpdate, Category = "UCT")
 	float CurrentReloadTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_LoadedUpdate, Category = "UCT")
@@ -92,6 +92,9 @@ public:
 
 	UFUNCTION()
 	void OnRep_RotYUpdate();
+
+	UFUNCTION()
+	void OnRep_CurrentReloadTimeUpdate();
 
 	UFUNCTION(BlueprintCallable)
 	void FireCanon();
