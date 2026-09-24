@@ -13,7 +13,6 @@ void AUCT_TrainHole::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& Out
     // Call the Super
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AUCT_TrainHole, NumberPeopleUsing);
     DOREPLIFETIME(AUCT_TrainHole, DamageRepaired);
 }
 
@@ -33,11 +32,6 @@ void AUCT_TrainHole::Tick(float DeltaTime)
             }
         }
     }
-}
-
-void AUCT_TrainHole::OnRep_NumberPeopleUsingUpdate()
-{
-
 }
 
 void AUCT_TrainHole::OnRep_DamageRepairedUpdate()

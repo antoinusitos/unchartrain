@@ -33,17 +33,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UStaticMeshComponent* Lever = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Base = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* PlayerPlacement = nullptr;
+	UStaticMeshComponent* StationBase = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TWeakObjectPtr<AUCT_Train> Train = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_NumberPeopleBoostingUpdate, Category = "UCT")
-	int32 NumberPeopleUsing = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool TrainCanMove = false;
@@ -55,9 +50,6 @@ public:
 	bool IsReleased = false;
 
 public:
-	UFUNCTION()
-	void OnRep_NumberPeopleBoostingUpdate();
-
 	UFUNCTION()
 	void OnRep_LockingValueUpdate();
 

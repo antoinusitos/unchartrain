@@ -9,6 +9,8 @@
 class UCameraComponent;
 class USpringArmComponent;
 
+class AUCT_Interactable;
+
 UCLASS()
 class UNCHARTRAIN_API AUCT_Player : public ACharacter
 {
@@ -38,6 +40,23 @@ public:
 
 	void LookUp(float Value);
 
+	void Interaction();
+
+	void CheckFrontForHint();
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_AttachToInteraction(AUCT_Interactable* Interactable);
+
+	void Server_AttachToInteraction_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_DetachToInteraction(AUCT_Interactable* Interactable);
+
+	void Server_DetachToInteraction_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowHint(const FString& Text);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -45,6 +64,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UCameraComponent* CameraComponent = nullptr;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float InteractionRange = 200.0f;
+
 private:
 	float CameraRotation = 0.0f;
+
+	TWeakObjectPtr<AUCT_Interactable> CurrentInteractableUsed = nullptr;
 };

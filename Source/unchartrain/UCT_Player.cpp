@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "UCT_Interactable.h"
+
 // Sets default values
 AUCT_Player::AUCT_Player()
 {
@@ -30,6 +32,7 @@ void AUCT_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CheckFrontForHint();
 }
 
 // Called to bind functionality to input
@@ -44,26 +47,149 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Interaction", EInputEvent::IE_Pressed, this, &AUCT_Player::Interaction);
 }
 
 void AUCT_Player::MoveForward(float Value)
 {
+	if (Value == 0.0f)
+	{
+		return;
+	}
+
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
 	AddMovementInput(GetActorForwardVector(), Value);
 }
 
 void AUCT_Player::MoveRight(float Value)
 {
+	if (Value == 0.0f)
+	{
+		return;
+	}
+
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
 	AddMovementInput(GetActorRightVector(), Value);
 }
 
 void AUCT_Player::LookAround(float Value)
 {
+	if (Value == 0.0f)
+	{
+		return;
+	}
+
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
 	AddControllerYawInput(Value);
 }
 
 void AUCT_Player::LookUp(float Value)
 {
+	if (Value == 0.0f)
+	{
+		return;
+	}
+
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
 	CameraRotation = FMath::Clamp(CameraRotation + Value, -89.0f, 89.0f);
 
 	SpringArmComponent->SetRelativeRotation(FRotator(CameraRotation, 0, 0));
+}
+
+void AUCT_Player::CheckFrontForHint()
+{
+	FVector Start = CameraComponent->GetComponentLocation();
+	FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
+	FHitResult Result;
+
+	if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
+	{
+		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
+		{
+			ShowHint(Cast<AUCT_Interactable>(Result.GetActor())->Hint);
+		}
+		else
+		{
+			ShowHint("");
+		}
+	}
+	else
+	{
+		ShowHint("");
+	}
+}
+
+void AUCT_Player::Interaction()
+{
+	if (CurrentInteractableUsed != nullptr)
+	{
+		Server_DetachToInteraction(CurrentInteractableUsed.Get());
+
+		CurrentInteractableUsed = nullptr;
+		
+		return;
+	}
+
+	FVector Start = CameraComponent->GetComponentLocation();
+	FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
+	FHitResult Result;
+
+	if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
+	{
+		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
+		{
+			CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
+			if (CurrentInteractableUsed->PlayerNeedAttachTo)
+			{
+				Server_AttachToInteraction(CurrentInteractableUsed.Get());
+			}
+		}
+	}
+}
+
+void AUCT_Player::Server_AttachToInteraction_Implementation(AUCT_Interactable* Interactable)
+{
+	if (Interactable == nullptr)
+	{
+		return;
+	}
+
+	if (Interactable->NumberPeopleUsing >= Interactable->NumberPlayersMax)
+	{
+		return;
+	}
+
+	Interactable->AttachToInteractable(this);
+
+	if (Interactable->ReplacePlayerWhenAttached)
+	{
+		SetActorLocationAndRotation(Interactable->GetPlayerPlacementPosition(), Interactable->GetPlayerPlacementRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+	}
+}
+
+void AUCT_Player::Server_DetachToInteraction_Implementation(AUCT_Interactable* Interactable)
+{
+	if (Interactable == nullptr)
+	{
+		return;
+	}
+
+	Interactable->DetachToInteractable(this);
 }

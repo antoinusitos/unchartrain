@@ -14,17 +14,14 @@ AUCT_Canon::AUCT_Canon()
 {
     bReplicates = true;
 
-    Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
-    RootComponent = Base;
+    CanonBase = CreateDefaultSubobject<UStaticMeshComponent>("CanonBase");
+    CanonBase->SetupAttachment(Base);
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-    SpringArm->SetupAttachment(Base);
+    SpringArm->SetupAttachment(CanonBase);
 
     Cylinder = CreateDefaultSubobject<UStaticMeshComponent>("Cylinder");
     Cylinder->SetupAttachment(SpringArm);
-
-    PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
-    PlayerPlacement->SetupAttachment(Base);
 
     FirePlace = CreateDefaultSubobject<UArrowComponent>("FirePlace");
     FirePlace->SetupAttachment(Cylinder);

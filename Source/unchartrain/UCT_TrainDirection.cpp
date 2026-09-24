@@ -11,17 +11,14 @@ AUCT_TrainDirection::AUCT_TrainDirection()
 {
     bReplicates = true;
 
-    Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
-    RootComponent = Base;
+    StationBase = CreateDefaultSubobject<UStaticMeshComponent>("StationBase");
+    StationBase->SetupAttachment(Base);
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-    SpringArm->SetupAttachment(Base);
+    SpringArm->SetupAttachment(StationBase);
 
     Lever = CreateDefaultSubobject<UStaticMeshComponent>("Lever");
     Lever->SetupAttachment(SpringArm);
-
-    PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
-    PlayerPlacement->SetupAttachment(Base);
 }
 
 void AUCT_TrainDirection::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

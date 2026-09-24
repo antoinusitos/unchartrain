@@ -30,16 +30,13 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Base = nullptr;
+	UStaticMeshComponent* CanonBase = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USpringArmComponent* SpringArm = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UStaticMeshComponent* Cylinder = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* PlayerPlacement = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* FirePlace = nullptr;

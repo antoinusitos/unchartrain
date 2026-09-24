@@ -22,9 +22,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_NumberPeopleUsingUpdate, Category = "UCT")
-	int32 NumberPeopleUsing = 0;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_DamageRepairedUpdate, Category = "UCT")
 	float DamageRepaired = 0;
 	
@@ -32,9 +29,6 @@ public:
 	float DamageToReach = 2;
 
 public:
-	UFUNCTION()
-	void OnRep_NumberPeopleUsingUpdate();
-
 	UFUNCTION()
 	void OnRep_DamageRepairedUpdate();
 };
