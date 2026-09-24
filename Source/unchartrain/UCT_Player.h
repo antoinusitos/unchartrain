@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "UCT_Player.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class UNCHARTRAIN_API AUCT_Player : public ACharacter
 {
@@ -26,4 +29,22 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	void MoveForward(float Value);
+
+	void MoveRight(float Value);
+
+	void LookAround(float Value);
+
+	void LookUp(float Value);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	USpringArmComponent* SpringArmComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UCameraComponent* CameraComponent = nullptr;
+
+private:
+	float CameraRotation = 0.0f;
 };
