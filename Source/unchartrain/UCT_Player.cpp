@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "UCT_Interactable.h"
+#include "UCT_Canon.h"
 
 // Sets default values
 AUCT_Player::AUCT_Player()
@@ -25,6 +26,7 @@ void AUCT_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	LocalController = Cast<APlayerController>(GetController());
 }
 
 // Called every frame
@@ -32,7 +34,19 @@ void AUCT_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
 	CheckFrontForHint();
+
+	CheckReloading();
+
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput)
+	{
+		Server_SendMouseDeltaToInteraction(CurrentInteractableUsed.Get(), LastMouseXDelta, LastMouseYDelta);
+	}
 }
 
 // Called to bind functionality to input
@@ -49,6 +63,11 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Interaction", EInputEvent::IE_Pressed, this, &AUCT_Player::Interaction);
+
+	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &AUCT_Player::Reload);
+	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Released, this, &AUCT_Player::StopReload);
+
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AUCT_Player::Fire);
 }
 
 void AUCT_Player::MoveForward(float Value)
@@ -83,6 +102,8 @@ void AUCT_Player::MoveRight(float Value)
 
 void AUCT_Player::LookAround(float Value)
 {
+	LastMouseXDelta = Value;
+
 	if (Value == 0.0f)
 	{
 		return;
@@ -98,6 +119,8 @@ void AUCT_Player::LookAround(float Value)
 
 void AUCT_Player::LookUp(float Value)
 {
+	LastMouseYDelta = Value;
+
 	if (Value == 0.0f)
 	{
 		return;
@@ -115,6 +138,11 @@ void AUCT_Player::LookUp(float Value)
 
 void AUCT_Player::CheckFrontForHint()
 {
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
 	FVector Start = CameraComponent->GetComponentLocation();
 	FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
 	FHitResult Result;
@@ -123,7 +151,7 @@ void AUCT_Player::CheckFrontForHint()
 	{
 		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
 		{
-			ShowHint(Cast<AUCT_Interactable>(Result.GetActor())->Hint);
+			ShowHint(Cast<AUCT_Interactable>(Result.GetActor())->Hint.ToString());
 		}
 		else
 		{
@@ -140,6 +168,11 @@ void AUCT_Player::Interaction()
 {
 	if (CurrentInteractableUsed != nullptr)
 	{
+		if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+		{
+			LocalController->SetViewTargetWithBlend(this);
+		}
+
 		Server_DetachToInteraction(CurrentInteractableUsed.Get());
 
 		CurrentInteractableUsed = nullptr;
@@ -156,9 +189,14 @@ void AUCT_Player::Interaction()
 		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
 		{
 			CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
+			ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
 			if (CurrentInteractableUsed->PlayerNeedAttachTo)
 			{
 				Server_AttachToInteraction(CurrentInteractableUsed.Get());
+			}
+			if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+			{
+				LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
 			}
 		}
 	}
@@ -180,7 +218,8 @@ void AUCT_Player::Server_AttachToInteraction_Implementation(AUCT_Interactable* I
 
 	if (Interactable->ReplacePlayerWhenAttached)
 	{
-		SetActorLocationAndRotation(Interactable->GetPlayerPlacementPosition(), Interactable->GetPlayerPlacementRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+		SetActorLocation(Interactable->GetPlayerPlacementPosition(), false, nullptr, ETeleportType::TeleportPhysics);
+		GetController()->SetControlRotation(Interactable->GetPlayerPlacementRotation());
 	}
 }
 
@@ -192,4 +231,68 @@ void AUCT_Player::Server_DetachToInteraction_Implementation(AUCT_Interactable* I
 	}
 
 	Interactable->DetachToInteractable(this);
+}
+
+void AUCT_Player::Reload()
+{
+	Reloading = true;
+}
+
+void AUCT_Player::StopReload()
+{
+	Reloading = false;
+}
+
+void AUCT_Player::CheckReloading()
+{
+	if (Reloading)
+	{
+		if (CurrentInteractableUsed->IsA<AUCT_Canon>())
+		{
+			AUCT_Canon* Canon = Cast<AUCT_Canon>(CurrentInteractableUsed);
+			if (Canon->Loaded)
+			{
+				ShowLongInputSlider(false, 0);
+			}
+			else
+			{
+				Server_UseReloadOnInteraction(Canon);
+				ShowLongInputSlider(true, Canon->CurrentReloadTime / Canon->ReloadTime);
+			}
+		}
+		else
+		{
+			ShowLongInputSlider(false, 0);
+		}
+	}
+	else
+	{
+		ShowLongInputSlider(false, 0);
+	}
+}
+
+void AUCT_Player::Server_UseReloadOnInteraction_Implementation(AUCT_Interactable* Interactable)
+{
+	Interactable->UseReloadInteraction();
+}
+
+
+void AUCT_Player::Server_UseInteraction_Implementation(AUCT_Interactable* Interactable)
+{
+	Interactable->UseInteractable();
+}
+
+void AUCT_Player::Fire()
+{
+	if (CurrentInteractableUsed == nullptr)
+	{
+		return;
+	}
+
+	Server_UseInteraction(CurrentInteractableUsed.Get());
+}
+
+void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
+{
+	Interactable->ReceiveMouseInput(X, Y);
 }

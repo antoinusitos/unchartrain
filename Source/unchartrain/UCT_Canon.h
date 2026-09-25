@@ -7,7 +7,6 @@
 #include "UCT_Canon.generated.h"
 
 class UArrowComponent;
-class UCameraComponent;
 class USpringArmComponent;
 class UStaticMeshComponent;
 
@@ -40,9 +39,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* FirePlace = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UCameraComponent* CameraPlace = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
 	bool IsUsed = false;
@@ -93,12 +89,13 @@ public:
 	UFUNCTION()
 	void OnRep_CurrentReloadTimeUpdate();
 
-	UFUNCTION(BlueprintCallable)
-	void FireCanon();
+	void UseReloadInteraction() override;
 
-	UFUNCTION(BlueprintCallable)
-	void AddRotation(float X, float Y);
+	void AttachToInteractable(ACharacter* character) override;
 
-	UFUNCTION(BlueprintCallable)
-	void Reloading();
+	void DetachToInteractable(ACharacter* character) override;
+
+	void UseInteractable() override;
+
+	void ReceiveMouseInput(float X, float Y) override;
 };

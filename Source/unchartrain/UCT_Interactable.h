@@ -6,7 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "UCT_Interactable.generated.h"
 
-class UArrowComponent; 
+class UArrowComponent;
+class UCameraComponent;
 class USceneComponent;
 
 UCLASS()
@@ -29,13 +30,15 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
-	virtual void Execute();
+	UFUNCTION(BlueprintCallable)
+	virtual void AttachToInteractable(ACharacter* character);
 
 	UFUNCTION(BlueprintCallable)
-	void AttachToInteractable(ACharacter* character);
+	virtual void DetachToInteractable(ACharacter* character);
 
-	UFUNCTION(BlueprintCallable)
-	void DetachToInteractable(ACharacter* character);
+	virtual void UseInteractable();
+
+	virtual void ReceiveMouseInput(float X, float Y);
 
 	UFUNCTION()
 	void OnRep_NumberPeopleUsingUpdate();
@@ -44,12 +47,17 @@ public:
 
 	FRotator GetPlayerPlacementRotation() const;
 
+	virtual void UseReloadInteraction();
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* PlayerPlacement = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USceneComponent* Base = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UCameraComponent* CameraPlacement = nullptr;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_NumberPeopleUsingUpdate, Category = "UCT")
@@ -64,9 +72,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	bool ReplacePlayerWhenAttached = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool ReplaceCameraWhenAttached = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool ShouldReceiveMouseInput = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	TArray<ACharacter*> AllCharactersAttached;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	FString Hint = "";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (MultiLine = "true"), Category = "UCT")
+	FText Hint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (MultiLine = "true"), Category = "UCT")
+	FText UsingInstructions;
 };

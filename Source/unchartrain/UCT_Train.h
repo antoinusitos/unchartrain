@@ -143,5 +143,5 @@ public:
 	void OnBoostValueChange();
 
 	UFUNCTION(BlueprintCallable)
-	void TakeDamage();
+	void TrainTakeDamage();
 };

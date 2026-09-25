@@ -54,8 +54,33 @@ public:
 
 	void Server_DetachToInteraction_Implementation(AUCT_Interactable* Interactable);
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_UseReloadOnInteraction(AUCT_Interactable* Interactable);
+
+	void Server_UseReloadOnInteraction_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_UseInteraction(AUCT_Interactable* Interactable);
+
+	void Server_UseInteraction_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_SendMouseDeltaToInteraction(AUCT_Interactable* Interactable, float X, float Y);
+
+	void Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowHint(const FString& Text);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLongInputSlider(bool State, float Value);
+
+	void Reload();
+	void StopReload();
+
+	void CheckReloading();
+
+	void Fire();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -72,4 +97,11 @@ private:
 	float CameraRotation = 0.0f;
 
 	TWeakObjectPtr<AUCT_Interactable> CurrentInteractableUsed = nullptr;
+
+	bool Reloading = false;
+
+	APlayerController* LocalController = nullptr;
+
+	float LastMouseXDelta = 0.0f;
+	float LastMouseYDelta = 0.0f;
 };

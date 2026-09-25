@@ -3,6 +3,7 @@
 #include "UCT_Interactable.h"
 #include "Net/UnrealNetwork.h"
 
+#include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/SceneComponent.h"
 
@@ -19,6 +20,9 @@ AUCT_Interactable::AUCT_Interactable()
 
 	PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
 	PlayerPlacement->SetupAttachment(Base);
+
+	CameraPlacement = CreateDefaultSubobject<UCameraComponent>("CameraPlacement");
+	CameraPlacement->SetupAttachment(Base);
 
 }
 
@@ -44,9 +48,9 @@ void AUCT_Interactable::Tick(float DeltaTime)
 
 }
 
-void AUCT_Interactable::Execute()
+void AUCT_Interactable::UseInteractable()
 {
-	
+
 }
 
 void AUCT_Interactable::AttachToInteractable(ACharacter* character)
@@ -80,4 +84,14 @@ FVector AUCT_Interactable::GetPlayerPlacementPosition() const
 FRotator AUCT_Interactable::GetPlayerPlacementRotation() const
 {
 	return PlayerPlacement->GetComponentRotation();
+}
+
+void AUCT_Interactable::UseReloadInteraction()
+{
+
+}
+
+void AUCT_Interactable::ReceiveMouseInput(float X, float Y)
+{
+	
 }
