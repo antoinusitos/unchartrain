@@ -7,7 +7,6 @@
 #include "UCT_Canon.generated.h"
 
 class UArrowComponent;
-class UCameraComponent;
 class USpringArmComponent;
 class UStaticMeshComponent;
 
@@ -30,7 +29,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Base = nullptr;
+	UStaticMeshComponent* CanonBase = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USpringArmComponent* SpringArm = nullptr;
@@ -39,13 +38,7 @@ public:
 	UStaticMeshComponent* Cylinder = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* PlayerPlacement = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* FirePlace = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UCameraComponent* CameraPlace = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
 	bool IsUsed = false;
@@ -71,7 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float ReloadTime = 5.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentReloadTimeUpdate, Category = "UCT")
 	float CurrentReloadTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_LoadedUpdate, Category = "UCT")
@@ -93,12 +86,16 @@ public:
 	UFUNCTION()
 	void OnRep_RotYUpdate();
 
-	UFUNCTION(BlueprintCallable)
-	void FireCanon();
+	UFUNCTION()
+	void OnRep_CurrentReloadTimeUpdate();
 
-	UFUNCTION(BlueprintCallable)
-	void AddRotation(float X, float Y);
+	void UseReloadInteraction() override;
 
-	UFUNCTION(BlueprintCallable)
-	void Reloading();
+	void AttachToInteractable(ACharacter* character) override;
+
+	void DetachToInteractable(ACharacter* character) override;
+
+	void UseInteractable() override;
+
+	void ReceiveMouseInput(float X, float Y) override;
 };

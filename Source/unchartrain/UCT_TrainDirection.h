@@ -33,11 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UStaticMeshComponent* Lever = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Base = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* PlayerPlacement = nullptr;
+	UStaticMeshComponent* StationBase = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TWeakObjectPtr<AUCT_Train> Train = nullptr;

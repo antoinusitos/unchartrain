@@ -14,23 +14,19 @@ AUCT_Canon::AUCT_Canon()
 {
     bReplicates = true;
 
-    Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
-    RootComponent = Base;
+    CanonBase = CreateDefaultSubobject<UStaticMeshComponent>("CanonBase");
+    CanonBase->SetupAttachment(Base);
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-    SpringArm->SetupAttachment(Base);
+    SpringArm->SetupAttachment(CanonBase);
 
     Cylinder = CreateDefaultSubobject<UStaticMeshComponent>("Cylinder");
     Cylinder->SetupAttachment(SpringArm);
 
-    PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
-    PlayerPlacement->SetupAttachment(Base);
-
     FirePlace = CreateDefaultSubobject<UArrowComponent>("FirePlace");
     FirePlace->SetupAttachment(Cylinder);
 
-    CameraPlace = CreateDefaultSubobject<UCameraComponent>("CameraPlace");
-    CameraPlace->SetupAttachment(SpringArm);
+    CameraPlacement->SetupAttachment(SpringArm);
 }
 
 void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -42,6 +38,7 @@ void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLife
     DOREPLIFETIME(AUCT_Canon, RotX);
     DOREPLIFETIME(AUCT_Canon, RotY);
     DOREPLIFETIME(AUCT_Canon, Loaded);
+    DOREPLIFETIME(AUCT_Canon, CurrentReloadTime);
 }
 
 void AUCT_Canon::Tick(float DeltaTime)
@@ -57,7 +54,7 @@ void AUCT_Canon::OnRep_IsUsedUpdate()
 
 }
 
-void AUCT_Canon::FireCanon()
+void AUCT_Canon::UseInteractable()
 {
     if (!Loaded)
     {
@@ -84,18 +81,12 @@ void AUCT_Canon::OnRep_RotYUpdate()
     SpringArm->SetRelativeRotation(FRotator(RotY, RotX, 0.0f));
 }
 
-void AUCT_Canon::AddRotation(float X, float Y)
-{
-    RotX = FMath::Clamp(RotX + X, MinX, MaxX);
-    RotY = FMath::Clamp(RotY + Y, MinY, MaxY);
-}
-
 void AUCT_Canon::OnRep_LoadedUpdate()
 {
 
 }
 
-void AUCT_Canon::Reloading()
+void AUCT_Canon::UseReloadInteraction()
 {
     if (Loaded)
     {
@@ -103,10 +94,40 @@ void AUCT_Canon::Reloading()
     }
 
     CurrentReloadTime += GetWorld()->GetDeltaSeconds();
-    UE_LOG(LogTemp, Warning, TEXT("CurrentReloadTime %f"), CurrentReloadTime);
     if (CurrentReloadTime >= ReloadTime)
     {
         CurrentReloadTime = 0;
         Loaded = true;
     }
+}
+
+void AUCT_Canon::OnRep_CurrentReloadTimeUpdate()
+{
+
+}
+
+void AUCT_Canon::AttachToInteractable(ACharacter* character)
+{
+    Super::AttachToInteractable(character);
+
+    if (AllCharactersAttached.Contains(character))
+    {
+        IsUsed = true;
+    }
+}
+
+void AUCT_Canon::DetachToInteractable(ACharacter* character)
+{
+    Super::DetachToInteractable(character);
+
+    if (AllCharactersAttached.Num() == 0)
+    {
+        IsUsed = false;
+    }
+}
+
+void AUCT_Canon::ReceiveMouseInput(float X, float Y)
+{
+    RotX = FMath::Clamp(RotX + X, MinX, MaxX);
+    RotY = FMath::Clamp(RotY + Y, MinY, MaxY);
 }

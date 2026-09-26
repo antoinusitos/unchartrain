@@ -29,10 +29,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UStaticMeshComponent* Base = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* PlayerPlacement = nullptr;
+	UStaticMeshComponent* StationBase = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentProgressionUpdate, Category = "UCT")
 	float CurrentProgression = 0.0f; // from 0 to 100 (included)
@@ -46,29 +43,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	int32 Direction2 = 0; //Player 2 dir ON SERVER ONLY
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_NumberPeopleUsingUpdate, Category = "UCT")
-	int32 NumberPeopleUsing = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
-	int32 NumberPeopleMax = 2;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	float FillingSpeed = 20;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
-	TArray<ACharacter*> AllCharactersAttached;
 public:
 	UFUNCTION()
 	void OnRep_CurrentProgressionUpdate();
-
-	UFUNCTION()
-	void OnRep_NumberPeopleUsingUpdate();
-
-	UFUNCTION(BlueprintCallable)
-	void AttachToAccelerator(ACharacter* character);
-
-	UFUNCTION(BlueprintCallable)
-	void DetachToAccelerator(ACharacter* character);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnChangeDone();

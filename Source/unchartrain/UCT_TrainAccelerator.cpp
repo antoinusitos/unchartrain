@@ -11,11 +11,8 @@ AUCT_TrainAccelerator::AUCT_TrainAccelerator()
 {
 	bReplicates = true;
 
-    Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
-    RootComponent = Base;
-
-    PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
-    PlayerPlacement->SetupAttachment(Base);
+    StationBase = CreateDefaultSubobject<UStaticMeshComponent>("StationBase");
+    StationBase->SetupAttachment(Base);
 }
 
 void AUCT_TrainAccelerator::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -41,27 +38,4 @@ void AUCT_TrainAccelerator::Tick(float DeltaTime)
 void AUCT_TrainAccelerator::OnRep_CurrentProgressionUpdate()
 {
     OnChangeDone();
-}
-
-void AUCT_TrainAccelerator::OnRep_NumberPeopleUsingUpdate()
-{
-
-}
-
-void AUCT_TrainAccelerator::AttachToAccelerator(ACharacter* character)
-{
-    if (!AllCharactersAttached.Contains(character))
-    {
-        AllCharactersAttached.Add(character);
-        NumberPeopleUsing++;
-    }
-}
-
-void AUCT_TrainAccelerator::DetachToAccelerator(ACharacter* character)
-{
-    if (AllCharactersAttached.Contains(character))
-    {
-        AllCharactersAttached.Remove(character);
-        NumberPeopleUsing--;
-    }
 }

@@ -11,17 +11,14 @@ AUCT_TrainStopper::AUCT_TrainStopper()
 {
     bReplicates = true;
 
-    Base = CreateDefaultSubobject<UStaticMeshComponent>("Base");
-    RootComponent = Base;
+    StationBase = CreateDefaultSubobject<UStaticMeshComponent>("StationBase");
+    StationBase->SetupAttachment(Base);
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-    SpringArm->SetupAttachment(Base);
+    SpringArm->SetupAttachment(StationBase);
 
     Lever = CreateDefaultSubobject<UStaticMeshComponent>("Lever");
     Lever->SetupAttachment(SpringArm);
-
-    PlayerPlacement = CreateDefaultSubobject<UArrowComponent>("PlayerPlacement");
-    PlayerPlacement->SetupAttachment(Base);
 }
 
 void AUCT_TrainStopper::Tick(float DeltaTime)
@@ -46,11 +43,6 @@ void AUCT_TrainStopper::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AUCT_TrainStopper, NumberPeopleUsing);
-}
-
-void AUCT_TrainStopper::OnRep_NumberPeopleBoostingUpdate()
-{
-
 }
 
 void AUCT_TrainStopper::OnRep_LockingValueUpdate()

@@ -200,7 +200,7 @@ void AUCT_Train::OnRep_ReleasingStoppingUpdate()
 
 }
 
-void AUCT_Train::TakeDamage()
+void AUCT_Train::TrainTakeDamage()
 {
 	if (TrainStopperToSpawn != nullptr)
 	{
