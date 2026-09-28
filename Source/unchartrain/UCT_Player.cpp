@@ -43,9 +43,13 @@ void AUCT_Player::Tick(float DeltaTime)
 
 	CheckReloading();
 
-	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput)
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput && (LastMouseXDelta != 0 || LastMouseYDelta != 0))
 	{
 		Server_SendMouseDeltaToInteraction(CurrentInteractableUsed.Get(), LastMouseXDelta, LastMouseYDelta);
+	}
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMovementInput && (LastMovementXDelta != 0 || LastMovementYDelta != 0))
+	{
+		Server_SendMovementDeltaToInteraction(CurrentInteractableUsed.Get(), LastMovementXDelta, LastMovementYDelta);
 	}
 }
 
@@ -72,6 +76,8 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void AUCT_Player::MoveForward(float Value)
 {
+	LastMovementYDelta = Value;
+
 	if (Value == 0.0f)
 	{
 		return;
@@ -87,6 +93,8 @@ void AUCT_Player::MoveForward(float Value)
 
 void AUCT_Player::MoveRight(float Value)
 {
+	LastMovementXDelta = Value;
+
 	if (Value == 0.0f)
 	{
 		return;
@@ -109,7 +117,7 @@ void AUCT_Player::LookAround(float Value)
 		return;
 	}
 
-	if (CurrentInteractableUsed != nullptr)
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldLockCamera)
 	{
 		return;
 	}
@@ -126,7 +134,7 @@ void AUCT_Player::LookUp(float Value)
 		return;
 	}
 
-	if (CurrentInteractableUsed != nullptr)
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldLockCamera)
 	{
 		return;
 	}
@@ -188,15 +196,19 @@ void AUCT_Player::Interaction()
 	{
 		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
 		{
-			CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
-			ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
-			if (CurrentInteractableUsed->PlayerNeedAttachTo)
+			AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
+			if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax)
 			{
-				Server_AttachToInteraction(CurrentInteractableUsed.Get());
-			}
-			if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
-			{
-				LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
+				CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
+				ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
+				if (CurrentInteractableUsed->PlayerNeedAttachTo)
+				{
+					Server_AttachToInteraction(CurrentInteractableUsed.Get());
+				}
+				if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+				{
+					LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
+				}
 			}
 		}
 	}
@@ -295,4 +307,9 @@ void AUCT_Player::Fire()
 void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
 {
 	Interactable->ReceiveMouseInput(X, Y);
+}
+
+void AUCT_Player::Server_SendMovementDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
+{
+	Interactable->ReceiveMovementInput(X, Y);
 }

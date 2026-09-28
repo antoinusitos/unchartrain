@@ -40,6 +40,8 @@ public:
 
 	virtual void ReceiveMouseInput(float X, float Y);
 
+	virtual void ReceiveMovementInput(float X, float Y);
+
 	UFUNCTION()
 	void OnRep_NumberPeopleUsingUpdate();
 
@@ -77,6 +79,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	bool ShouldReceiveMouseInput = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool ShouldReceiveMovementInput = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool ShouldLockCamera = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	TArray<ACharacter*> AllCharactersAttached;

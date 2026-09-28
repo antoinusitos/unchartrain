@@ -27,6 +27,9 @@ AUCT_Canon::AUCT_Canon()
     FirePlace->SetupAttachment(Cylinder);
 
     CameraPlacement->SetupAttachment(SpringArm);
+
+    ShouldReceiveMouseInput = true;
+    ShouldLockCamera = true;
 }
 
 void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

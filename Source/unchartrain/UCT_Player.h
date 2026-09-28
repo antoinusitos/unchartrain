@@ -69,6 +69,11 @@ public:
 
 	void Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y);
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_SendMovementDeltaToInteraction(AUCT_Interactable* Interactable, float X, float Y);
+
+	void Server_SendMovementDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowHint(const FString& Text);
 
@@ -104,4 +109,7 @@ private:
 
 	float LastMouseXDelta = 0.0f;
 	float LastMouseYDelta = 0.0f;
+
+	float LastMovementXDelta = 0.0f;
+	float LastMovementYDelta = 0.0f;
 };

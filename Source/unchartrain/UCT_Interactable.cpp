@@ -95,3 +95,8 @@ void AUCT_Interactable::ReceiveMouseInput(float X, float Y)
 {
 	
 }
+
+void AUCT_Interactable::ReceiveMovementInput(float X, float Y) 
+{
+
+}

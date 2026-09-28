@@ -54,4 +54,6 @@ public:
 
 	UFUNCTION()
 	void OnRep_IsUsedUpdate();
+
+	void ReceiveMovementInput(float X, float Y) override;
 };

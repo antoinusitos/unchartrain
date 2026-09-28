@@ -7,6 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "UCT_Train.h"
+
 AUCT_TrainDirection::AUCT_TrainDirection()
 {
     bReplicates = true;
@@ -19,6 +21,8 @@ AUCT_TrainDirection::AUCT_TrainDirection()
 
     Lever = CreateDefaultSubobject<UStaticMeshComponent>("Lever");
     Lever->SetupAttachment(SpringArm);
+
+    ShouldReceiveMovementInput = true;
 }
 
 void AUCT_TrainDirection::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -46,4 +50,16 @@ void AUCT_TrainDirection::OnRep_RotUpdate()
 void AUCT_TrainDirection::OnRep_IsUsedUpdate()
 {
     
+}
+
+void AUCT_TrainDirection::ReceiveMovementInput(float X, float Y)
+{
+    if (X < 0)
+    {
+        Train->TurnLeft();
+    }
+    else if (X > 0)
+    {
+        Train->TurnRight();
+    }
 }
