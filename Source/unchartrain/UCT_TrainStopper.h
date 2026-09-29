@@ -58,7 +58,9 @@ public:
 
 	void OnInteract() override;
 
-	void ReceiveMovementInput(float X, float Y) override;
+	void ReceiveMovementInput(float X, float Y, AUCT_Player* character) override;
 
 	bool CanUseLongInteraction() override;
+
+	void AttachToInteractable(AUCT_Player* character) override;
 };

@@ -33,6 +33,8 @@ void AUCT_TrainHole::Tick(float DeltaTime)
                 Destroy();
             }
         }
+
+        NumberPeopleUsing = 0;
     }
 }
 
@@ -41,7 +43,12 @@ void AUCT_TrainHole::OnRep_DamageRepairedUpdate()
 
 }
 
-void AUCT_TrainHole::OnLongInteraction(AUCT_Player* Player)
+float AUCT_TrainHole::GetCustomSliderValue()
 {
-    Player->ShowLongInputSlider(true, DamageRepaired / DamageToReach);
+    return DamageRepaired / DamageToReach;
+}
+
+void AUCT_TrainHole::OnHoldInteraction()    
+{
+    NumberPeopleUsing = FMath::Clamp(NumberPeopleUsing + 1, 0, NumberPlayersMax);
 }

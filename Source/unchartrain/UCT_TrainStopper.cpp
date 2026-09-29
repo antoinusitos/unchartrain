@@ -37,6 +37,10 @@ void AUCT_TrainStopper::Tick(float DeltaTime)
             IsReleased = false;
         }
     }
+    else if (HasAuthority() && !TrainCanMove && LockingValue < 1 && NumberPeopleUsing == 0 && !IsReleased)
+    {
+        IsReleased = true;
+    }
 }
 
 void AUCT_TrainStopper::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -53,7 +57,7 @@ void AUCT_TrainStopper::OnRep_LockingValueUpdate()
     SpringArm->SetRelativeRotation(FRotator(0, 90, FMath::Lerp(-45.0f, 45.0f, LockingValue)));
 }
 
-void AUCT_TrainStopper::ReceiveMovementInput(float X, float Y)
+void AUCT_TrainStopper::ReceiveMovementInput(float X, float Y, AUCT_Player* character)
 {
     if (Y > 0)
     {
@@ -90,4 +94,11 @@ bool AUCT_TrainStopper::CanUseLongInteraction()
 void AUCT_TrainStopper::OnRep_TrainCanMoveUpdate()
 {
 
+}
+
+void AUCT_TrainStopper::AttachToInteractable(AUCT_Player* character)
+{
+    Super::AttachToInteractable(character);
+
+    IsReleased = false;
 }

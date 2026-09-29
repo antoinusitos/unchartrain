@@ -32,5 +32,7 @@ public:
 	UFUNCTION()
 	void OnRep_DamageRepairedUpdate();
 
-	void OnLongInteraction(AUCT_Player* Player) override;
+	float GetCustomSliderValue() override;
+
+	void OnHoldInteraction() override;
 };

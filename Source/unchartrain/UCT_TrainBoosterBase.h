@@ -40,4 +40,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnChangeDone(float CurrentValue, int32 PickedNumber, float Tolerence);
+
+	void ReceiveMovementInput(float X, float Y, AUCT_Player* character) override;
 };

@@ -39,3 +39,21 @@ void AUCT_TrainAccelerator::OnRep_CurrentProgressionUpdate()
 {
     OnChangeDone();
 }
+
+void AUCT_TrainAccelerator::ReceiveMovementInput(float X, float Y, AUCT_Player* character)
+{
+	for (int32 i = 0; i < AllCharactersAttached.Num(); i++)
+	{
+		if (AllCharactersAttached[i] == character)
+		{
+			if (i + 1 == 1)
+			{
+				Direction1 = X < 0 ? -1 : X > 0 ? 1 : 0;
+			}
+			else if (i + 1 == 2)
+			{
+				Direction2 = X < 0 ? -1 : X > 0 ? 1 : 0;
+			}
+		}
+	}
+}

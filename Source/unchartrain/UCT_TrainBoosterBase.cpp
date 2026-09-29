@@ -37,3 +37,15 @@ void AUCT_TrainBoosterBase::OnRep_TrainBoosterUpdate()
 {
     PostSpawn();
 }
+
+void AUCT_TrainBoosterBase::ReceiveMovementInput(float X, float Y, AUCT_Player* character)
+{
+    if (X <= 0)
+    {
+        TrainBooster->RemovePressure();
+    }
+    else if (X >= 0)
+    {
+        TrainBooster->AddPressure();
+    }
+}

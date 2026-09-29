@@ -98,7 +98,7 @@ void AUCT_Interactable::ReceiveMouseInput(float X, float Y)
 	
 }
 
-void AUCT_Interactable::ReceiveMovementInput(float X, float Y) 
+void AUCT_Interactable::ReceiveMovementInput(float X, float Y, AUCT_Player* character)
 {
 
 }
@@ -116,4 +116,14 @@ void AUCT_Interactable::OnInteract()
 bool AUCT_Interactable::CanUseLongInteraction()
 {
 	return true;
+}
+
+float AUCT_Interactable::GetCustomSliderValue()
+{
+	return 0;
+}
+
+void AUCT_Interactable::OnHoldInteraction()
+{
+
 }

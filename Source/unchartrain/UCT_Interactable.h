@@ -44,7 +44,7 @@ public:
 
 	virtual void ReceiveMouseInput(float X, float Y);
 
-	virtual void ReceiveMovementInput(float X, float Y);
+	virtual void ReceiveMovementInput(float X, float Y, AUCT_Player* character);
 
 	UFUNCTION()
 	void OnRep_NumberPeopleUsingUpdate();
@@ -57,7 +57,11 @@ public:
 
 	virtual void OnLongInteraction(AUCT_Player* Player);
 
+	virtual void OnHoldInteraction();
+
 	virtual bool CanUseLongInteraction();
+
+	virtual float GetCustomSliderValue();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -98,6 +102,9 @@ public:
 	bool ShouldReceiveMovementInput = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool ShouldReceiveZeroMovementInput = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	bool ShouldLockCamera = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -108,6 +115,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	bool UseSimpleInteraction = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool HoldInteraction = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool UseCustomSliderValue = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	TArray<AUCT_Player*> AllCharactersAttached;

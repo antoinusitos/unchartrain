@@ -86,6 +86,11 @@ public:
 
 	void Client_ExitCurrentStation_Implementation();
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_HoldOnInteraction(AUCT_Interactable* Interactable);
+
+	void Server_HoldOnInteraction_Implementation(AUCT_Interactable* Interactable);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowHint(const FString& Text);
 
@@ -119,7 +124,8 @@ public:
 private:
 	float CameraRotation = 0.0f;
 
-	TWeakObjectPtr<AUCT_Interactable> CurrentInteractableUsed = nullptr;
+	AUCT_Interactable* CurrentInteractableUsed = nullptr;
+	AUCT_Interactable* CurrentFacedInteractable = nullptr;
 
 	bool Reloading = false;
 

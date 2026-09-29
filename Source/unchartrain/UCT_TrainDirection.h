@@ -55,5 +55,5 @@ public:
 	UFUNCTION()
 	void OnRep_IsUsedUpdate();
 
-	void ReceiveMovementInput(float X, float Y) override;
+	void ReceiveMovementInput(float X, float Y, AUCT_Player* character) override;
 };

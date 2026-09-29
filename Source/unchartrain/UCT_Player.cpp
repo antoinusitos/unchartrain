@@ -47,11 +47,12 @@ void AUCT_Player::Tick(float DeltaTime)
 
 	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput && (LastMouseXDelta != 0 || LastMouseYDelta != 0))
 	{
-		Server_SendMouseDeltaToInteraction(CurrentInteractableUsed.Get(), LastMouseXDelta, LastMouseYDelta);
+		Server_SendMouseDeltaToInteraction(CurrentInteractableUsed, LastMouseXDelta, LastMouseYDelta);
 	}
-	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMovementInput && (LastMovementXDelta != 0 || LastMovementYDelta != 0))
+	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMovementInput && 
+	(CurrentInteractableUsed->ShouldReceiveZeroMovementInput || (LastMovementXDelta != 0 || LastMovementYDelta != 0)))
 	{
-		Server_SendMovementDeltaToInteraction(CurrentInteractableUsed.Get(), LastMovementXDelta, LastMovementYDelta);
+		Server_SendMovementDeltaToInteraction(CurrentInteractableUsed, LastMovementXDelta, LastMovementYDelta);
 	}
 }
 
@@ -162,16 +163,19 @@ void AUCT_Player::CheckFrontForHint()
 	{
 		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
 		{
-			ShowHint(Cast<AUCT_Interactable>(Result.GetActor())->Hint.ToString());
+			CurrentFacedInteractable = Cast<AUCT_Interactable>(Result.GetActor());
+			ShowHint(CurrentFacedInteractable->Hint.ToString());
 		}
 		else
 		{
 			ShowHint("");
+			CurrentFacedInteractable = nullptr;
 		}
 	}
 	else
 	{
 		ShowHint("");
+		CurrentFacedInteractable = nullptr;
 	}
 }
 
@@ -187,54 +191,54 @@ void AUCT_Player::TickInteraction()
 
 		InteractTime += GetWorld()->GetDeltaSeconds();
 
-		if (InteractTime >= LongInteractionStartTime)
+		if (CurrentFacedInteractable != nullptr && CurrentFacedInteractable->HoldInteraction)
 		{
-			FVector Start = CameraComponent->GetComponentLocation();
-			FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
-			FHitResult Result;
-			if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
-			{
-				if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
-				{
-					AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
-					if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax && Interact->CanUseLongInteraction())
-					{
-						if (Interact->AttachWithLongInteraction)
-						{
-							ShowLongInputSlider(true, InteractTime / LongInteractionTime);
+			Server_HoldOnInteraction(CurrentFacedInteractable);
 
-							if (InteractTime >= LongInteractionTime)
-							{
-								if (Interact->PlayerNeedAttachToLongInteraction)
-								{
-									CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
-									ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
-									Server_AttachToInteraction(CurrentInteractableUsed.Get());
-									if (CurrentInteractableUsed->ReplaceCameraWhenAttachedLongInteraction)
-									{
-										LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
-									}
-								}
-							}
-						}
-						else if (Interact->UseLongInteraction)
-						{
-							Interact->OnLongInteraction(this);
-						}
-					}
-					else
-					{
-						InteractTime = 0;
-					}
-				}
-				else
-				{
-					InteractTime = 0;
-				}
+			if (CurrentFacedInteractable->UseCustomSliderValue)
+			{
+				ShowLongInputSlider(true, CurrentFacedInteractable->GetCustomSliderValue());
 			}
 			else
 			{
-				InteractTime = 0;
+				ShowLongInputSlider(true, InteractTime / LongInteractionTime);
+			}
+			if (CurrentFacedInteractable->ReplaceCameraWhenAttachedLongInteraction)
+			{
+				LocalController->SetViewTargetWithBlend(CurrentFacedInteractable);
+			}
+			return;
+		}
+
+		if (InteractTime >= LongInteractionStartTime)
+		{
+			if (CurrentFacedInteractable != nullptr && !CurrentFacedInteractable->HoldInteraction && CurrentFacedInteractable->UseLongInteraction && CurrentFacedInteractable->NumberPeopleUsing < CurrentFacedInteractable->NumberPlayersMax && CurrentFacedInteractable->CanUseLongInteraction())
+			{
+				if (CurrentFacedInteractable->AttachWithLongInteraction)
+				{
+					ShowLongInputSlider(true, InteractTime / LongInteractionTime);
+
+					if (InteractTime >= LongInteractionTime)
+					{
+						if (CurrentFacedInteractable->PlayerNeedAttachToLongInteraction)
+						{
+							CurrentInteractableUsed = CurrentFacedInteractable;
+							if (CurrentInteractableUsed != nullptr)
+							{
+								ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
+								Server_AttachToInteraction(CurrentInteractableUsed);
+								if (CurrentInteractableUsed->ReplaceCameraWhenAttachedLongInteraction)
+								{
+									LocalController->SetViewTargetWithBlend(CurrentInteractableUsed);
+								}
+							}
+						}
+					}
+				}
+				else if (CurrentFacedInteractable->UseLongInteraction)
+				{
+					CurrentFacedInteractable->OnLongInteraction(this);
+				}
 			}
 		}
 	}
@@ -250,11 +254,6 @@ void AUCT_Player::StopInteraction()
 {
 	Interacting = false;
 
-	if (CurrentInteractableUsed != nullptr)
-	{
-		return;
-	}
-
 	if (InteractTime < LongInteractionStartTime)
 	{
 		if (CurrentInteractableUsed != nullptr)
@@ -264,41 +263,46 @@ void AUCT_Player::StopInteraction()
 				LocalController->SetViewTargetWithBlend(this);
 			}
 
-			Server_DetachToInteraction(CurrentInteractableUsed.Get());
+			Server_DetachToInteraction(CurrentInteractableUsed);
 
 			CurrentInteractableUsed = nullptr;
 
 			return;
 		}
 
-		FVector Start = CameraComponent->GetComponentLocation();
-		FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
-		FHitResult Result;
-
-		if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
+		if (CurrentFacedInteractable != nullptr && CurrentFacedInteractable->NumberPeopleUsing < CurrentFacedInteractable->NumberPlayersMax)
 		{
-			if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
+			if (CurrentFacedInteractable->UseSimpleInteraction)
 			{
-				AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
-				if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax)
-				{
-					if (Interact->UseSimpleInteraction)
-					{
-						Server_OnInteract(Interact);
-					}
+				Server_OnInteract(CurrentFacedInteractable);
+			}
 
-					if (Interact->PlayerNeedAttachTo)
-					{
-						CurrentInteractableUsed = Interact;
-						ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
-						Server_AttachToInteraction(CurrentInteractableUsed.Get());
-						if (Interact->ReplaceCameraWhenAttached)
-						{
-							LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
-						}
-					}
+			if (CurrentFacedInteractable->PlayerNeedAttachTo)
+			{
+				CurrentInteractableUsed = CurrentFacedInteractable;
+				ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
+				Server_AttachToInteraction(CurrentInteractableUsed);
+				if (CurrentFacedInteractable->ReplaceCameraWhenAttached)
+				{
+					LocalController->SetViewTargetWithBlend(CurrentInteractableUsed);
 				}
 			}
+		}
+	}
+	else
+	{
+		if (CurrentInteractableUsed != nullptr)
+		{
+			if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+			{
+				LocalController->SetViewTargetWithBlend(this);
+			}
+
+			Server_DetachToInteraction(CurrentInteractableUsed);
+
+			CurrentInteractableUsed = nullptr;
+
+			return;
 		}
 	}
 }
@@ -312,7 +316,7 @@ void AUCT_Player::Client_ExitCurrentStation_Implementation()
 			LocalController->SetViewTargetWithBlend(this);
 		}
 
-		Server_DetachToInteraction(CurrentInteractableUsed.Get());
+		Server_DetachToInteraction(CurrentInteractableUsed);
 
 		CurrentInteractableUsed = nullptr;
 
@@ -407,7 +411,7 @@ void AUCT_Player::Fire()
 		return;
 	}
 
-	Server_UseInteraction(CurrentInteractableUsed.Get());
+	Server_UseInteraction(CurrentInteractableUsed);
 }
 
 void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
@@ -417,10 +421,15 @@ void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interac
 
 void AUCT_Player::Server_SendMovementDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
 {
-	Interactable->ReceiveMovementInput(X, Y);
+	Interactable->ReceiveMovementInput(X, Y, this);
 }
 
 void AUCT_Player::Server_OnInteract_Implementation(AUCT_Interactable* Interactable)
 {
 	Interactable->OnInteract();
+}
+
+void AUCT_Player::Server_HoldOnInteraction_Implementation(AUCT_Interactable* Interactable)
+{
+	Interactable->OnHoldInteraction();
 }

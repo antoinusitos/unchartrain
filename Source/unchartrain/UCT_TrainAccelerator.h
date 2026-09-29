@@ -52,4 +52,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnChangeDone();
+
+	void ReceiveMovementInput(float X, float Y, AUCT_Player* character) override;
 }; 

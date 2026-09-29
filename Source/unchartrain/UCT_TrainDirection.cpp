@@ -52,7 +52,7 @@ void AUCT_TrainDirection::OnRep_IsUsedUpdate()
     
 }
 
-void AUCT_TrainDirection::ReceiveMovementInput(float X, float Y)
+void AUCT_TrainDirection::ReceiveMovementInput(float X, float Y, AUCT_Player* character)
 {
     if (X < 0)
     {
