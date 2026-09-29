@@ -7,6 +7,8 @@
 #include "Components/ArrowComponent.h"
 #include "Components/SceneComponent.h"
 
+#include "UCT_Player.h"
+
 // Sets default values
 AUCT_Interactable::AUCT_Interactable()
 {
@@ -53,7 +55,7 @@ void AUCT_Interactable::UseInteractable()
 
 }
 
-void AUCT_Interactable::AttachToInteractable(ACharacter* character)
+void AUCT_Interactable::AttachToInteractable(AUCT_Player* character)
 {
 	if (!AllCharactersAttached.Contains(character))
 	{
@@ -62,7 +64,7 @@ void AUCT_Interactable::AttachToInteractable(ACharacter* character)
 	}
 }
 
-void AUCT_Interactable::DetachToInteractable(ACharacter* character)
+void AUCT_Interactable::DetachToInteractable(AUCT_Player* character)
 {
 	if (AllCharactersAttached.Contains(character))
 	{
@@ -99,4 +101,19 @@ void AUCT_Interactable::ReceiveMouseInput(float X, float Y)
 void AUCT_Interactable::ReceiveMovementInput(float X, float Y) 
 {
 
+}
+
+void AUCT_Interactable::OnLongInteraction(AUCT_Player* Player)
+{
+
+}
+
+void AUCT_Interactable::OnInteract()
+{
+
+}
+
+bool AUCT_Interactable::CanUseLongInteraction()
+{
+	return true;
 }

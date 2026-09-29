@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TWeakObjectPtr<AUCT_Train> Train = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_TrainCanMoveUpdate, Category = "UCT")
 	bool TrainCanMove = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_LockingValueUpdate, Category = "UCT")
@@ -53,18 +53,12 @@ public:
 	UFUNCTION()
 	void OnRep_LockingValueUpdate();
 
-	UFUNCTION(BlueprintCallable)
-	void AttachToStopper(ACharacter* character);
+	UFUNCTION()
+	void OnRep_TrainCanMoveUpdate();
 
-	UFUNCTION(BlueprintCallable)
-	void DetachToStopper(ACharacter* character);
+	void OnInteract() override;
 
-	UFUNCTION(BlueprintCallable)
-	void UnlockTrain();
+	void ReceiveMovementInput(float X, float Y) override;
 
-	UFUNCTION(BlueprintCallable)
-	void ReleaseStopper();
-
-private:
-	TArray<ACharacter*> AllCharactersAttached;
+	bool CanUseLongInteraction() override;
 };

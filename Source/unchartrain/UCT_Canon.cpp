@@ -109,26 +109,6 @@ void AUCT_Canon::OnRep_CurrentReloadTimeUpdate()
 
 }
 
-void AUCT_Canon::AttachToInteractable(ACharacter* character)
-{
-    Super::AttachToInteractable(character);
-
-    if (AllCharactersAttached.Contains(character))
-    {
-        IsUsed = true;
-    }
-}
-
-void AUCT_Canon::DetachToInteractable(ACharacter* character)
-{
-    Super::DetachToInteractable(character);
-
-    if (AllCharactersAttached.Num() == 0)
-    {
-        IsUsed = false;
-    }
-}
-
 void AUCT_Canon::ReceiveMouseInput(float X, float Y)
 {
     RotX = FMath::Clamp(RotX + X, MinX, MaxX);

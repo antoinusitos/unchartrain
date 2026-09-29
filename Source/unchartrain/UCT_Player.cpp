@@ -43,6 +43,8 @@ void AUCT_Player::Tick(float DeltaTime)
 
 	CheckReloading();
 
+	TickInteraction();
+
 	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput && (LastMouseXDelta != 0 || LastMouseYDelta != 0))
 	{
 		Server_SendMouseDeltaToInteraction(CurrentInteractableUsed.Get(), LastMouseXDelta, LastMouseYDelta);
@@ -67,6 +69,7 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Interaction", EInputEvent::IE_Pressed, this, &AUCT_Player::Interaction);
+	PlayerInputComponent->BindAction("Interaction", EInputEvent::IE_Released, this, &AUCT_Player::StopInteraction);
 
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &AUCT_Player::Reload);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Released, this, &AUCT_Player::StopReload);
@@ -172,7 +175,135 @@ void AUCT_Player::CheckFrontForHint()
 	}
 }
 
+void AUCT_Player::TickInteraction()
+{
+	if (Interacting)
+	{
+		if (CurrentInteractableUsed != nullptr)
+		{
+			Interacting = false;
+			return;
+		}
+
+		InteractTime += GetWorld()->GetDeltaSeconds();
+
+		if (InteractTime >= LongInteractionStartTime)
+		{
+			FVector Start = CameraComponent->GetComponentLocation();
+			FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
+			FHitResult Result;
+			if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
+			{
+				if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
+				{
+					AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
+					if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax && Interact->CanUseLongInteraction())
+					{
+						if (Interact->AttachWithLongInteraction)
+						{
+							ShowLongInputSlider(true, InteractTime / LongInteractionTime);
+
+							if (InteractTime >= LongInteractionTime)
+							{
+								if (Interact->PlayerNeedAttachToLongInteraction)
+								{
+									CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
+									ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
+									Server_AttachToInteraction(CurrentInteractableUsed.Get());
+									if (CurrentInteractableUsed->ReplaceCameraWhenAttachedLongInteraction)
+									{
+										LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
+									}
+								}
+							}
+						}
+						else if (Interact->UseLongInteraction)
+						{
+							Interact->OnLongInteraction(this);
+						}
+					}
+					else
+					{
+						InteractTime = 0;
+					}
+				}
+				else
+				{
+					InteractTime = 0;
+				}
+			}
+			else
+			{
+				InteractTime = 0;
+			}
+		}
+	}
+}
+
 void AUCT_Player::Interaction()
+{
+	Interacting = true;
+	InteractTime = 0;
+}
+
+void AUCT_Player::StopInteraction()
+{
+	Interacting = false;
+
+	if (CurrentInteractableUsed != nullptr)
+	{
+		return;
+	}
+
+	if (InteractTime < LongInteractionStartTime)
+	{
+		if (CurrentInteractableUsed != nullptr)
+		{
+			if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+			{
+				LocalController->SetViewTargetWithBlend(this);
+			}
+
+			Server_DetachToInteraction(CurrentInteractableUsed.Get());
+
+			CurrentInteractableUsed = nullptr;
+
+			return;
+		}
+
+		FVector Start = CameraComponent->GetComponentLocation();
+		FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
+		FHitResult Result;
+
+		if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
+		{
+			if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
+			{
+				AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
+				if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax)
+				{
+					if (Interact->UseSimpleInteraction)
+					{
+						Server_OnInteract(Interact);
+					}
+
+					if (Interact->PlayerNeedAttachTo)
+					{
+						CurrentInteractableUsed = Interact;
+						ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
+						Server_AttachToInteraction(CurrentInteractableUsed.Get());
+						if (Interact->ReplaceCameraWhenAttached)
+						{
+							LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void AUCT_Player::Client_ExitCurrentStation_Implementation()
 {
 	if (CurrentInteractableUsed != nullptr)
 	{
@@ -184,33 +315,8 @@ void AUCT_Player::Interaction()
 		Server_DetachToInteraction(CurrentInteractableUsed.Get());
 
 		CurrentInteractableUsed = nullptr;
-		
+
 		return;
-	}
-
-	FVector Start = CameraComponent->GetComponentLocation();
-	FVector End = CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * InteractionRange;
-	FHitResult Result;
-
-	if (GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECollisionChannel::ECC_Visibility))
-	{
-		if (Result.GetActor()->IsA(AUCT_Interactable::StaticClass()))
-		{
-			AUCT_Interactable* Interact = Cast<AUCT_Interactable>(Result.GetActor());
-			if (Interact != nullptr && Interact->NumberPeopleUsing < Interact->NumberPlayersMax)
-			{
-				CurrentInteractableUsed = Cast<AUCT_Interactable>(Result.GetActor());
-				ShowHint(CurrentInteractableUsed->UsingInstructions.ToString());
-				if (CurrentInteractableUsed->PlayerNeedAttachTo)
-				{
-					Server_AttachToInteraction(CurrentInteractableUsed.Get());
-				}
-				if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
-				{
-					LocalController->SetViewTargetWithBlend(CurrentInteractableUsed.Get());
-				}
-			}
-		}
 	}
 }
 
@@ -312,4 +418,9 @@ void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interac
 void AUCT_Player::Server_SendMovementDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
 {
 	Interactable->ReceiveMovementInput(X, Y);
+}
+
+void AUCT_Player::Server_OnInteract_Implementation(AUCT_Interactable* Interactable)
+{
+	Interactable->OnInteract();
 }

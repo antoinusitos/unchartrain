@@ -31,4 +31,6 @@ public:
 public:
 	UFUNCTION()
 	void OnRep_DamageRepairedUpdate();
+
+	void OnLongInteraction(AUCT_Player* Player) override;
 };

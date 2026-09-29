@@ -41,6 +41,8 @@ public:
 	void LookUp(float Value);
 
 	void Interaction();
+	void StopInteraction();
+	void TickInteraction();
 
 	void CheckFrontForHint();
 
@@ -74,6 +76,16 @@ public:
 
 	void Server_SendMovementDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y);
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_OnInteract(AUCT_Interactable* Interactable);
+
+	void Server_OnInteract_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "UCT")
+	void Client_ExitCurrentStation();
+
+	void Client_ExitCurrentStation_Implementation();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowHint(const FString& Text);
 
@@ -98,6 +110,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float InteractionRange = 200.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float LongInteractionStartTime = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	float LongInteractionTime = 0.5f;
+
 private:
 	float CameraRotation = 0.0f;
 
@@ -112,4 +130,7 @@ private:
 
 	float LastMovementXDelta = 0.0f;
 	float LastMovementYDelta = 0.0f;
+
+	float InteractTime = 0;
+	bool Interacting = false;
 };

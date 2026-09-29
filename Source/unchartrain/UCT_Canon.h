@@ -91,10 +91,6 @@ public:
 
 	void UseReloadInteraction() override;
 
-	void AttachToInteractable(ACharacter* character) override;
-
-	void DetachToInteractable(ACharacter* character) override;
-
 	void UseInteractable() override;
 
 	void ReceiveMouseInput(float X, float Y) override;

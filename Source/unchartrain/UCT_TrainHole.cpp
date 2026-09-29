@@ -3,6 +3,8 @@
 #include "UCT_TrainHole.h"
 #include "Net/UnrealNetwork.h"
 
+#include "UCT_Player.h"
+
 AUCT_TrainHole::AUCT_TrainHole()
 {
     bReplicates = true;
@@ -37,4 +39,9 @@ void AUCT_TrainHole::Tick(float DeltaTime)
 void AUCT_TrainHole::OnRep_DamageRepairedUpdate()
 {
 
+}
+
+void AUCT_TrainHole::OnLongInteraction(AUCT_Player* Player)
+{
+    Player->ShowLongInputSlider(true, DamageRepaired / DamageToReach);
 }

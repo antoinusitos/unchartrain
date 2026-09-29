@@ -7,6 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "UCT_Player.h"
+
 AUCT_TrainStopper::AUCT_TrainStopper()
 {
     bReplicates = true;
@@ -43,6 +45,7 @@ void AUCT_TrainStopper::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AUCT_TrainStopper, NumberPeopleUsing);
+    DOREPLIFETIME(AUCT_TrainStopper, TrainCanMove);
 }
 
 void AUCT_TrainStopper::OnRep_LockingValueUpdate()
@@ -50,42 +53,26 @@ void AUCT_TrainStopper::OnRep_LockingValueUpdate()
     SpringArm->SetRelativeRotation(FRotator(0, 90, FMath::Lerp(-45.0f, 45.0f, LockingValue)));
 }
 
-void AUCT_TrainStopper::AttachToStopper(ACharacter* character)
+void AUCT_TrainStopper::ReceiveMovementInput(float X, float Y)
 {
-    if (!AllCharactersAttached.Contains(character))
+    if (Y > 0)
     {
-        AllCharactersAttached.Add(character);
-        NumberPeopleUsing++;
-        IsReleased = false;
-    }
-}
+        LockingValue = FMath::Clamp(LockingValue - GetWorld()->GetDeltaSeconds(), 0, 1);
+        SpringArm->SetRelativeRotation(FRotator(0, 90, FMath::Lerp(-45.0f, 45.0f, LockingValue)));
 
-void AUCT_TrainStopper::DetachToStopper(ACharacter* character)
-{
-    if (AllCharactersAttached.Contains(character))
-    {
-        AllCharactersAttached.Remove(character);
-        NumberPeopleUsing--;
-
-        if (NumberPeopleUsing == 0 && !TrainCanMove && LockingValue > 0)
+        if (LockingValue <= 0 && !TrainCanMove)
         {
-            IsReleased = true;
+            TrainCanMove = true;
+
+            for (int32 i = 0; i < AllCharactersAttached.Num(); i++)
+            {
+                AllCharactersAttached[i]->Client_ExitCurrentStation();
+            }
         }
     }
 }
 
-void AUCT_TrainStopper::UnlockTrain()
-{
-    LockingValue = FMath::Clamp(LockingValue - GetWorld()->GetDeltaSeconds(), 0, 1);
-    SpringArm->SetRelativeRotation(FRotator(0, 90, FMath::Lerp(-45.0f, 45.0f, LockingValue)));
-
-    if (LockingValue <= 0 && !TrainCanMove)
-    {
-        TrainCanMove = true;
-    }
-}
-
-void AUCT_TrainStopper::ReleaseStopper()
+void AUCT_TrainStopper::OnInteract()
 {
     if (IsReleased || !TrainCanMove)
     {
@@ -93,4 +80,14 @@ void AUCT_TrainStopper::ReleaseStopper()
     }
 
     IsReleased = true;
+}
+
+bool AUCT_TrainStopper::CanUseLongInteraction()
+{
+    return !TrainCanMove;
+}
+
+void AUCT_TrainStopper::OnRep_TrainCanMoveUpdate()
+{
+
 }
