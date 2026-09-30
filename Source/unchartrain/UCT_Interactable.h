@@ -57,6 +57,8 @@ public:
 
 	virtual void OnLongInteraction(AUCT_Player* Player);
 
+	virtual void OnQuickUse(AUCT_Player* Player);
+
 	virtual void OnHoldInteraction();
 
 	virtual bool CanUseLongInteraction();
@@ -121,6 +123,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	bool UseCustomSliderValue = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	bool CanQuickUse = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	TArray<AUCT_Player*> AllCharactersAttached;

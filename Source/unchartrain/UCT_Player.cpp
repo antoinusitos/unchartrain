@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UCT_Player.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
-#include "UCT_Interactable.h"
 #include "UCT_Canon.h"
+#include "UCT_ItemCarriable.h"
+#include "UCT_Interactable.h"
+#include "UCT_ItemCarryingComponent.h"
 
 // Sets default values
 AUCT_Player::AUCT_Player()
@@ -19,6 +22,8 @@ AUCT_Player::AUCT_Player()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	ItemCarryingComponent = CreateDefaultSubobject<UUCT_ItemCarryingComponent>("ItemCarryingComponent");
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +49,8 @@ void AUCT_Player::Tick(float DeltaTime)
 	CheckReloading();
 
 	TickInteraction();
+
+	CheckCarriedState();
 
 	if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->ShouldReceiveMouseInput && (LastMouseXDelta != 0 || LastMouseYDelta != 0))
 	{
@@ -76,6 +83,17 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Released, this, &AUCT_Player::StopReload);
 
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AUCT_Player::Fire);
+
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AUCT_Player::Aim);
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AUCT_Player::StopAim);
+}
+
+void AUCT_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	// Call the Super
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUCT_Player, CurrentHealth);
 }
 
 void AUCT_Player::MoveForward(float Value)
@@ -287,6 +305,11 @@ void AUCT_Player::StopInteraction()
 					LocalController->SetViewTargetWithBlend(CurrentInteractableUsed);
 				}
 			}
+
+			if (CurrentFacedInteractable->CanQuickUse)
+			{
+				Server_QuickUse(CurrentFacedInteractable);
+			}
 		}
 	}
 	else
@@ -406,12 +429,17 @@ void AUCT_Player::Server_UseInteraction_Implementation(AUCT_Interactable* Intera
 
 void AUCT_Player::Fire()
 {
-	if (CurrentInteractableUsed == nullptr)
+	if (CurrentInteractableUsed != nullptr)
 	{
+		Server_UseInteraction(CurrentInteractableUsed);
 		return;
 	}
 
-	Server_UseInteraction(CurrentInteractableUsed);
+	if (ItemCarryingComponent != nullptr && ItemCarryingComponent->CurrentCarriedItem != nullptr)
+	{
+		Server_UseCarriedItem(CameraComponent->GetComponentLocation(), CameraComponent->GetForwardVector(), this);
+		return;
+	}
 }
 
 void AUCT_Player::Server_SendMouseDeltaToInteraction_Implementation(AUCT_Interactable* Interactable, float X, float Y)
@@ -432,4 +460,99 @@ void AUCT_Player::Server_OnInteract_Implementation(AUCT_Interactable* Interactab
 void AUCT_Player::Server_HoldOnInteraction_Implementation(AUCT_Interactable* Interactable)
 {
 	Interactable->OnHoldInteraction();
+}
+
+void AUCT_Player::Aim()
+{
+	if (ItemCarryingComponent == nullptr)
+	{
+		return;
+	}
+
+	if (ItemCarryingComponent->CurrentCarriedItem != nullptr && ItemCarryingComponent->CurrentCarriedItem->CanAim)
+	{
+		Aiming = true;
+
+		Server_Aim(true);
+	}
+}
+
+void AUCT_Player::StopAim()
+{
+	if (ItemCarryingComponent == nullptr)
+	{
+		return;
+	}
+
+	if (ItemCarryingComponent->CurrentCarriedItem != nullptr && ItemCarryingComponent->CurrentCarriedItem->CanAim)
+	{
+		Aiming = false;
+
+		Server_Aim(false);
+	}
+}
+
+void AUCT_Player::Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, const AUCT_Player* User)
+{
+	if (ItemCarryingComponent == nullptr || ItemCarryingComponent->CurrentCarriedItem == nullptr)
+	{
+		return;
+	}
+
+	if (ItemCarryingComponent->CurrentCarriedItem->CanAim)
+	{
+		if (Aiming)
+		{
+			ItemCarryingComponent->CurrentCarriedItem->UseItem(Loc, Forward, User);
+		}
+	}
+	else
+	{
+		ItemCarryingComponent->CurrentCarriedItem->UseItem(Loc, Forward, User);
+	}
+}
+
+void AUCT_Player::CheckCarriedState()
+{
+	if (ItemCarryingComponent == nullptr || ItemCarryingComponent->CurrentCarriedItem == nullptr)
+	{
+		return;
+	}
+
+	if (ItemCarryingComponent->CurrentCarriedItem->IsDirty)
+	{
+		UpdateCarriedUI();
+		ItemCarryingComponent->CurrentCarriedItem->IsDirty = false;
+	}
+}
+
+void AUCT_Player::OnRep_CurrentHealthUpdate()
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	UpdateHealthUI();
+}
+
+void AUCT_Player::PlayerTakeDamage(float Amount)
+{
+	CurrentHealth -= Amount;
+	UpdateHealthUI();
+}
+
+void AUCT_Player::Server_Aim_Implementation(bool NewState)
+{
+	Aiming = NewState;
+}
+
+void AUCT_Player::OnRep_AimingUpdate()
+{
+	
+}
+
+void AUCT_Player::Server_QuickUse_Implementation(AUCT_Interactable* Interactable)
+{
+	Interactable->OnQuickUse(this);
 }

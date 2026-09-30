@@ -127,3 +127,8 @@ void AUCT_Interactable::OnHoldInteraction()
 {
 
 }
+
+void AUCT_Interactable::OnQuickUse(AUCT_Player* Player)
+{
+
+}

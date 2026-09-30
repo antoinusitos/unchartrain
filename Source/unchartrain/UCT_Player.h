@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 class AUCT_Interactable;
+class UUCT_ItemCarryingComponent;
 
 UCLASS()
 class UNCHARTRAIN_API AUCT_Player : public ACharacter
@@ -30,6 +31,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	void MoveForward(float Value);
@@ -81,6 +84,16 @@ public:
 
 	void Server_OnInteract_Implementation(AUCT_Interactable* Interactable);
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_QuickUse(AUCT_Interactable* Interactable);
+
+	void Server_QuickUse_Implementation(AUCT_Interactable* Interactable);
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_UseCarriedItem(const FVector Loc, const FVector Forward, const AUCT_Player* User);
+
+	void Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, const AUCT_Player* User);
+
 	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "UCT")
 	void Client_ExitCurrentStation();
 
@@ -103,6 +116,30 @@ public:
 	void CheckReloading();
 
 	void Fire();
+	
+	void Aim();
+	void StopAim();
+
+	void CheckCarriedState();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateCarriedUI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateHealthUI();
+
+	UFUNCTION()
+	void OnRep_CurrentHealthUpdate();
+
+	void PlayerTakeDamage(float Amount);
+
+	UFUNCTION()
+	void OnRep_AimingUpdate();
+
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_Aim(bool NewState);
+
+	void Server_Aim_Implementation(bool NewState);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -110,6 +147,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UCameraComponent* CameraComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	UUCT_ItemCarryingComponent* ItemCarryingComponent = nullptr;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
@@ -120,6 +160,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float LongInteractionTime = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentHealthUpdate, Category = "UCT")
+	float CurrentHealth = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_AimingUpdate, Category = "UCT")
+	bool Aiming = false;
 
 private:
 	float CameraRotation = 0.0f;
