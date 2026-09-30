@@ -15,8 +15,6 @@ class UNCHARTRAIN_API AUCT_WeaponRanged : public AUCT_Weapon
 	GENERATED_BODY()
 
 public:
-	AUCT_WeaponRanged();
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
@@ -27,7 +25,7 @@ public:
 	int32 AmmoMax = 5;
 
 public:
-	virtual void UseItem(const FVector Loc, const FVector Forward, const AUCT_Player* User) override;
+	virtual void UseItem(const FVector Loc, const FVector Forward, AUCT_Player* User) override;
 
 	UFUNCTION()
 	void OnRep_CurrentAmmoUpdate();

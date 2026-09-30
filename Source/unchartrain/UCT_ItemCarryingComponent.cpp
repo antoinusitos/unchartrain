@@ -36,8 +36,8 @@ void UUCT_ItemCarryingComponent::BeginPlay()
 
 	if (DebugWeaponToSpawn != nullptr)
 	{
-		AUCT_WeaponRanged* RangedWeapon = GetWorld()->SpawnActor<AUCT_WeaponRanged>(DebugWeaponToSpawn);
-		AttachItem(RangedWeapon);
+		AUCT_Weapon* Weapon = GetWorld()->SpawnActor<AUCT_Weapon>(DebugWeaponToSpawn);
+		AttachItem(Weapon);
 	}
 }
 

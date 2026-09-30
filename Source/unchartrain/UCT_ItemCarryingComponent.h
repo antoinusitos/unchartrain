@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "UCT_ItemCarryingComponent.generated.h"
 
-class AUCT_WeaponRanged;
+class AUCT_Weapon;
 class AUCT_ItemCarriable;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -30,7 +30,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	TSubclassOf<AUCT_WeaponRanged> DebugWeaponToSpawn = nullptr;
+	TSubclassOf<AUCT_Weapon> DebugWeaponToSpawn = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentCarriedItemUpdate, Category = "UCT")
 	AUCT_ItemCarriable* CurrentCarriedItem = nullptr;

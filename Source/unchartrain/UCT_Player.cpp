@@ -492,7 +492,7 @@ void AUCT_Player::StopAim()
 	}
 }
 
-void AUCT_Player::Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, const AUCT_Player* User)
+void AUCT_Player::Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, AUCT_Player* User)
 {
 	if (ItemCarryingComponent == nullptr || ItemCarryingComponent->CurrentCarriedItem == nullptr)
 	{
@@ -555,4 +555,9 @@ void AUCT_Player::OnRep_AimingUpdate()
 void AUCT_Player::Server_QuickUse_Implementation(AUCT_Interactable* Interactable)
 {
 	Interactable->OnQuickUse(this);
+}
+
+void AUCT_Player::OnRep_AttackingUpdate()
+{
+	
 }

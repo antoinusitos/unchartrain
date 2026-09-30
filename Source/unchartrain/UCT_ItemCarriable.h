@@ -23,7 +23,7 @@ public:
 	bool IsDirty = true;
 
 public:
-	virtual void UseItem(const FVector Loc, const FVector Forward, const AUCT_Player* User);
+	virtual void UseItem(const FVector Loc, const FVector Forward, AUCT_Player* User);
 
 	virtual void RefillItem();
 };

@@ -90,9 +90,9 @@ public:
 	void Server_QuickUse_Implementation(AUCT_Interactable* Interactable);
 
 	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
-	void Server_UseCarriedItem(const FVector Loc, const FVector Forward, const AUCT_Player* User);
+	void Server_UseCarriedItem(const FVector Loc, const FVector Forward, AUCT_Player* User);
 
-	void Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, const AUCT_Player* User);
+	void Server_UseCarriedItem_Implementation(const FVector Loc, const FVector Forward, AUCT_Player* User);
 
 	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "UCT")
 	void Client_ExitCurrentStation();
@@ -141,6 +141,9 @@ public:
 
 	void Server_Aim_Implementation(bool NewState);
 
+	UFUNCTION()
+	void OnRep_AttackingUpdate();
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -166,6 +169,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_AimingUpdate, Category = "UCT")
 	bool Aiming = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_AttackingUpdate, Category = "UCT")
+	bool Attacking = false;
 
 private:
 	float CameraRotation = 0.0f;

@@ -15,6 +15,9 @@ class UNCHARTRAIN_API AUCT_Weapon : public AUCT_ItemCarriable
 	GENERATED_BODY()
 
 public:
+	AUCT_Weapon();
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	int32 Damage = 5;
 	

@@ -5,11 +5,6 @@
 
 #include "UCT_Player.h"
 
-AUCT_WeaponRanged::AUCT_WeaponRanged()
-{
-	bReplicates = true;
-}
-
 void AUCT_WeaponRanged::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
     // Call the Super
@@ -18,7 +13,7 @@ void AUCT_WeaponRanged::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& 
     DOREPLIFETIME(AUCT_WeaponRanged, CurrentAmmo);
 }
 
-void AUCT_WeaponRanged::UseItem(const FVector Loc, const FVector Forward, const AUCT_Player* User)
+void AUCT_WeaponRanged::UseItem(const FVector Loc, const FVector Forward, AUCT_Player* User)
 {
 	if (CurrentAmmo > 0)
 	{
