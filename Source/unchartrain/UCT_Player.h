@@ -144,6 +144,15 @@ public:
 	UFUNCTION()
 	void OnRep_AttackingUpdate();
 
+	UFUNCTION(Reliable, Server, BlueprintCallable, Category = "UCT")
+	void Server_SwitchItem(int32 Index);
+
+	void Server_SwitchItem_Implementation(int32 Index);
+
+	void Weapon0();
+	void Weapon1();
+	void Weapon2();
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	USpringArmComponent* SpringArmComponent = nullptr;

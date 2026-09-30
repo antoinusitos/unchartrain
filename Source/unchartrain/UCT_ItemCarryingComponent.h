@@ -32,12 +32,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TSubclassOf<AUCT_Weapon> DebugWeaponToSpawn = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	TSubclassOf<AUCT_Weapon> DebugWeapon2ToSpawn = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentCarriedItemUpdate, Category = "UCT")
 	AUCT_ItemCarriable* CurrentCarriedItem = nullptr;
+
+	AUCT_ItemCarriable* MeleeWeapon = nullptr;
+	AUCT_ItemCarriable* RangedWeapon = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentIndexUpdate, Category = "UCT")
+	int32 CurrentIndex = 0;
 
 public:
 	void AttachItem(AUCT_ItemCarriable* Item);
 
 	UFUNCTION()
 	void OnRep_CurrentCarriedItemUpdate();
+
+	UFUNCTION()
+	void OnRep_CurrentIndexUpdate();
+
+	void SwitchToItem(int32 index);
 };

@@ -33,12 +33,6 @@ void UUCT_ItemCarryingComponent::BeginPlay()
 	{
 		return;
 	}
-
-	if (DebugWeaponToSpawn != nullptr)
-	{
-		AUCT_Weapon* Weapon = GetWorld()->SpawnActor<AUCT_Weapon>(DebugWeaponToSpawn);
-		AttachItem(Weapon);
-	}
 }
 
 void UUCT_ItemCarryingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -53,6 +47,43 @@ void UUCT_ItemCarryingComponent::AttachItem(AUCT_ItemCarriable* Item)
 }
 
 void UUCT_ItemCarryingComponent::OnRep_CurrentCarriedItemUpdate()
+{
+
+}
+
+void UUCT_ItemCarryingComponent::SwitchToItem(int32 index)
+{
+	if (CurrentCarriedItem != nullptr && index != CurrentIndex)
+	{
+		CurrentCarriedItem->Destroy();
+		CurrentCarriedItem = nullptr;
+	}
+
+	if (index == 1)
+	{
+		CurrentIndex = 1;
+		if (DebugWeaponToSpawn != nullptr)
+		{
+			AUCT_Weapon* Weapon = GetWorld()->SpawnActor<AUCT_Weapon>(DebugWeaponToSpawn);
+			AttachItem(Weapon);
+		}
+	}
+	else if (index == 2)
+	{
+		CurrentIndex = 2;
+		if (DebugWeapon2ToSpawn != nullptr)
+		{
+			AUCT_Weapon* Weapon = GetWorld()->SpawnActor<AUCT_Weapon>(DebugWeapon2ToSpawn);
+			AttachItem(Weapon);
+		}
+	}
+	else
+	{
+		CurrentIndex = 0;
+	}
+}
+
+void UUCT_ItemCarryingComponent::OnRep_CurrentIndexUpdate()
 {
 
 }

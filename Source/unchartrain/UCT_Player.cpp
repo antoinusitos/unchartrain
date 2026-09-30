@@ -4,7 +4,9 @@
 #include "Net/UnrealNetwork.h"
 
 #include "Camera/CameraComponent.h"
+#include "Engine/PlayerStartPIE.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 #include "UCT_Canon.h"
 #include "UCT_ItemCarriable.h"
@@ -86,6 +88,10 @@ void AUCT_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AUCT_Player::Aim);
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AUCT_Player::StopAim);
+
+	PlayerInputComponent->BindAction("Weapon0", EInputEvent::IE_Pressed, this, &AUCT_Player::Weapon0);
+	PlayerInputComponent->BindAction("Weapon1", EInputEvent::IE_Pressed, this, &AUCT_Player::Weapon1);
+	PlayerInputComponent->BindAction("Weapon2", EInputEvent::IE_Pressed, this, &AUCT_Player::Weapon2);
 }
 
 void AUCT_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -539,6 +545,15 @@ void AUCT_Player::OnRep_CurrentHealthUpdate()
 void AUCT_Player::PlayerTakeDamage(float Amount)
 {
 	CurrentHealth -= Amount;
+
+	if (CurrentHealth <= 0)
+	{
+		CurrentHealth = 100;
+		TArray<AActor*> FoundActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), FoundActors);
+		SetActorLocation(FoundActors[0]->GetActorLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+	}
+
 	UpdateHealthUI();
 }
 
@@ -560,4 +575,36 @@ void AUCT_Player::Server_QuickUse_Implementation(AUCT_Interactable* Interactable
 void AUCT_Player::OnRep_AttackingUpdate()
 {
 	
+}
+
+void AUCT_Player::Server_SwitchItem_Implementation(int32 Index)
+{
+	if (ItemCarryingComponent != nullptr)
+	{
+		ItemCarryingComponent->SwitchToItem(Index);
+	}
+}
+
+void AUCT_Player::Weapon0()
+{
+	if (ItemCarryingComponent->CurrentIndex != 0)
+	{
+		Server_SwitchItem(0);
+	}
+}
+
+void AUCT_Player::Weapon1()
+{
+	if (ItemCarryingComponent->CurrentIndex != 1)
+	{
+		Server_SwitchItem(1);
+	}
+}
+
+void AUCT_Player::Weapon2()
+{
+	if (ItemCarryingComponent->CurrentIndex != 2)
+	{
+		Server_SwitchItem(2);
+	}
 }
