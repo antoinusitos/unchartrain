@@ -40,9 +40,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* FirePlace = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
-	bool IsUsed = false;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_RotXUpdate, Category = "UCT")
 	float RotX = 0.0f;
 

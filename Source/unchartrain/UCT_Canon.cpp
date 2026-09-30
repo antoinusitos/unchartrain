@@ -37,7 +37,6 @@ void AUCT_Canon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLife
     // Call the Super
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AUCT_Canon, IsUsed);
     DOREPLIFETIME(AUCT_Canon, RotX);
     DOREPLIFETIME(AUCT_Canon, RotY);
     DOREPLIFETIME(AUCT_Canon, Loaded);

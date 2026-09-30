@@ -608,3 +608,18 @@ void AUCT_Player::Weapon2()
 		Server_SwitchItem(2);
 	}
 }
+
+void AUCT_Player::Client_ResetCurrentInteractable_Implementation()
+{
+	if (CurrentInteractableUsed != nullptr)
+	{
+		if (CurrentInteractableUsed->ReplaceCameraWhenAttached)
+		{
+			LocalController->SetViewTargetWithBlend(this);
+		}
+
+		Server_DetachToInteraction(CurrentInteractableUsed);
+
+		CurrentInteractableUsed = nullptr;
+	}
+}

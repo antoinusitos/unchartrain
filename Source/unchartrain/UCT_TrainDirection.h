@@ -45,15 +45,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_RotUpdate, Category = "UCT")
 	float Rot = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_IsUsedUpdate, Category = "UCT")
-	bool IsUsed = false;
-
 public:
 	UFUNCTION()
 	void OnRep_RotUpdate();
-
-	UFUNCTION()
-	void OnRep_IsUsedUpdate();
 
 	void ReceiveMovementInput(float X, float Y, AUCT_Player* character) override;
 };

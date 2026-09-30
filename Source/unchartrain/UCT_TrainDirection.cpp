@@ -31,7 +31,6 @@ void AUCT_TrainDirection::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AUCT_TrainDirection, Rot);
-    DOREPLIFETIME(AUCT_TrainDirection, IsUsed);
 }
 
 void AUCT_TrainDirection::Tick(float DeltaTime)
@@ -45,11 +44,6 @@ void AUCT_TrainDirection::Tick(float DeltaTime)
 void AUCT_TrainDirection::OnRep_RotUpdate()
 {
     SpringArm->SetRelativeRotation(FRotator(0, 0, Rot * RotValue));
-}
-
-void AUCT_TrainDirection::OnRep_IsUsedUpdate()
-{
-    
 }
 
 void AUCT_TrainDirection::ReceiveMovementInput(float X, float Y, AUCT_Player* character)

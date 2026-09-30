@@ -141,6 +141,11 @@ public:
 
 	void Server_Aim_Implementation(bool NewState);
 
+	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "UCT")
+	void Client_ResetCurrentInteractable();
+
+	void Client_ResetCurrentInteractable_Implementation();
+
 	UFUNCTION()
 	void OnRep_AttackingUpdate();
 
