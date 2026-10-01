@@ -4,6 +4,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "UCT_Player.h"
+#include "UCT_TrainHolePlacement.h"
 
 AUCT_TrainHole::AUCT_TrainHole()
 {
@@ -30,6 +31,10 @@ void AUCT_TrainHole::Tick(float DeltaTime)
 
             if (DamageRepaired >= DamageToReach)
             {
+                if (TrainHolePlacement != nullptr)
+                {
+                    TrainHolePlacement->Used = false;
+                }
                 Destroy();
             }
         }

@@ -7,6 +7,7 @@
 #include "UCT_TrainBoosterBase.h"
 #include "UCT_TrainDirection.h"
 #include "UCT_TrainHole.h"
+#include "UCT_TrainHolePlacement.h"
 #include "UCT_TrainStopper.h"
 
 #include "Components/ArrowComponent.h"
@@ -37,8 +38,8 @@ AUCT_Train::AUCT_Train()
 	TrainStopper_Socket = CreateDefaultSubobject<UArrowComponent>("TrainStopper_Socket");
 	TrainStopper_Socket->SetupAttachment(RootComponent);
 
-	TrainDamage_Socket = CreateDefaultSubobject<UArrowComponent>("TrainDamage_Socket");
-	TrainDamage_Socket->SetupAttachment(RootComponent);
+	//TrainDamage_Socket = CreateDefaultSubobject<UArrowComponent>("TrainDamage_Socket");
+	//TrainDamage_Socket->SetupAttachment(RootComponent);
 
 	TrainAccelerator_Socket = CreateDefaultSubobject<UArrowComponent>("TrainAccelerator_Socket");
 	TrainAccelerator_Socket->SetupAttachment(RootComponent);
@@ -125,6 +126,11 @@ void AUCT_Train::Tick(float DeltaTime)
 		return;
 	}
 
+	if (TrainIsDead)
+	{
+		return;
+	}
+
 	BoostValue = TrainAccelerator->CurrentProgression >= 100 ? 2 : TrainAccelerator->CurrentProgression >= 0 ? 1 : 0;
 
 	if (TrainStopper->TrainCanMove)
@@ -135,7 +141,7 @@ void AUCT_Train::Tick(float DeltaTime)
 	{
 		Speed = FMath::Clamp(Speed - Acceleration * DeltaTime * 10, 0.0f, MaxSpeed * BoostValue);
 	}
-	
+
 	SetActorLocation(GetActorLocation() + GetActorForwardVector() * Speed * DeltaTime);
 
 	TrainDirection->Rot = Rotation;
@@ -202,9 +208,21 @@ void AUCT_Train::OnRep_ReleasingStoppingUpdate()
 
 void AUCT_Train::TrainTakeDamage()
 {
-	if (TrainStopperToSpawn != nullptr)
+	if (TrainDamageToSpawn != nullptr)
 	{
-		AUCT_TrainHole* Damage = GetWorld()->SpawnActor<AUCT_TrainHole>(TrainDamageToSpawn);
-		Damage->AttachToComponent(TrainDamage_Socket, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		for (int32 i = 0; i < TrainHolePlacements.Num(); i++)
+		{
+			if (!TrainHolePlacements[i]->Used)
+			{
+				AUCT_TrainHole* Damage = GetWorld()->SpawnActor<AUCT_TrainHole>(TrainDamageToSpawn);
+				Damage->AttachToComponent(TrainHolePlacements[i]->SocketPlace, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				Damage->TrainHolePlacement = TrainHolePlacements[i];
+				TrainHolePlacements[i]->Used = true;
+				return;
+			}
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("TRAIN DESTROYED"));
+		TrainIsDead = true;
 	}
 }

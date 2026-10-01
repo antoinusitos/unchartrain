@@ -318,7 +318,7 @@ void AUCT_Player::StopInteraction()
 			}
 		}
 	}
-	else
+	/*else
 	{
 		if (CurrentInteractableUsed != nullptr)
 		{
@@ -333,7 +333,7 @@ void AUCT_Player::StopInteraction()
 
 			return;
 		}
-	}
+	}*/
 }
 
 void AUCT_Player::Client_ExitCurrentStation_Implementation()
@@ -398,7 +398,7 @@ void AUCT_Player::CheckReloading()
 {
 	if (Reloading)
 	{
-		if (CurrentInteractableUsed->IsA<AUCT_Canon>())
+		if (CurrentInteractableUsed != nullptr && CurrentInteractableUsed->IsA<AUCT_Canon>())
 		{
 			AUCT_Canon* Canon = Cast<AUCT_Canon>(CurrentInteractableUsed);
 			if (Canon->Loaded)

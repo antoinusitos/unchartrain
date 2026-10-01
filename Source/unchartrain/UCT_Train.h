@@ -11,6 +11,7 @@ class AUCT_TrainBooster;
 class AUCT_TrainBoosterBase;
 class AUCT_TrainDirection;
 class AUCT_TrainHole;
+class AUCT_TrainHolePlacement;
 class AUCT_TrainStopper;
 
 class UArrowComponent;
@@ -90,8 +91,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	UArrowComponent* TrainAccelerator_Socket = nullptr;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
+	//UArrowComponent* TrainDamage_Socket = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
-	UArrowComponent* TrainDamage_Socket = nullptr;
+	TArray<AUCT_TrainHolePlacement*> TrainHolePlacements;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	TSubclassOf<AUCT_TrainHole> TrainDamageToSpawn = nullptr;
@@ -101,6 +105,9 @@ public:
 	float Acceleration = 100.0f;
 	float TurnSpeed = 0.3f;
 	float MaxRotation = 0.2f;
+
+	int32 DamageSocketIndex = 0;
+	bool TrainIsDead = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UCT")
 	float BoostMax = 7.0f;

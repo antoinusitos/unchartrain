@@ -6,6 +6,8 @@
 #include "UCT_Interactable.h"
 #include "UCT_TrainHole.generated.h"
 
+class AUCT_TrainHolePlacement;;
+
 /**
  * 
  */
@@ -27,6 +29,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UCT")
 	float DamageToReach = 2;
+
+	AUCT_TrainHolePlacement* TrainHolePlacement = nullptr;
 
 public:
 	UFUNCTION()
