@@ -369,7 +369,7 @@ void AUCT_Player::Server_AttachToInteraction_Implementation(AUCT_Interactable* I
 
 	if (Interactable->ReplacePlayerWhenAttached)
 	{
-		SetActorLocation(Interactable->GetPlayerPlacementPosition(), false, nullptr, ETeleportType::TeleportPhysics);
+		SetActorLocation(Interactable->GetPlayerPlacementPosition(), false, nullptr, ETeleportType::ResetPhysics);
 		GetController()->SetControlRotation(Interactable->GetPlayerPlacementRotation());
 	}
 }
@@ -551,7 +551,7 @@ void AUCT_Player::PlayerTakeDamage(float Amount)
 		CurrentHealth = 100;
 		TArray<AActor*> FoundActors;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), FoundActors);
-		SetActorLocation(FoundActors[0]->GetActorLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+		SetActorLocation(FoundActors[0]->GetActorLocation(), false, nullptr, ETeleportType::ResetPhysics);
 	}
 
 	UpdateHealthUI();
